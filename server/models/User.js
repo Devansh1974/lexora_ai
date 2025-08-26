@@ -1,0 +1,13 @@
+const mongoose = require('mongoose');
+const { Schema } = mongoose;
+
+const userSchema = new Schema({
+  googleId: String,
+  displayName: String,
+  email: String,
+  photo: String,
+  accessToken: String,
+  refreshToken: String,
+});
+
+mongoose.model('User', userSchema);
