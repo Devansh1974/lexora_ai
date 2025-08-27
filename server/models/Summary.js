@@ -4,6 +4,7 @@ const shortid = require('shortid');
 
 const summarySchema = new Schema({
   _user: { type: Schema.Types.ObjectId, ref: 'User' },
+  title: { type: String, default: 'Untitled Summary' }, 
   originalContent: String,
   prompt: String,
   summaryText: String,

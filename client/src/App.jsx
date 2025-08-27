@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import api from './api';
 import { useAuth } from './AuthContext';
 import { motion } from 'framer-motion';
-import { Toaster, toast } from 'react-hot-toast'; // Import Toaster and toast
+import { Toaster, toast } from 'react-hot-toast';
 
 // Import the new components
 import Login from './components/Login';
@@ -15,11 +15,14 @@ function App() {
   const [prompt, setPrompt] = useState('Summarize the following transcript into a concise executive summary, highlighting the key decisions and outcomes. Format the output as clean markdown.');
   const [summary, setSummary] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [isHistoryLoading, setIsHistoryLoading] = useState(true); // New state for history loading
+  const [isHistoryLoading, setIsHistoryLoading] = useState(true);
   const [selectedFile, setSelectedFile] = useState(null);
   const [summariesHistory, setSummariesHistory] = useState([]);
   const [showHistory, setShowHistory] = useState(true);
   const [recipient, setRecipient] = useState('');
+  const [searchTerm, setSearchTerm] = useState(''); // New state for search
+
+  // --- Logic Functions ---
 
   useEffect(() => {
     if (user) {
@@ -29,8 +32,25 @@ function App() {
     }
   }, [user]);
 
+  // --- NEW: Keyboard Shortcut Listener ---
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if ((event.metaKey || event.ctrlKey) && event.key === 'Enter') {
+        event.preventDefault();
+        if (!isLoading) {
+          handleGenerateSummary();
+        }
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [transcript, prompt, selectedFile, isLoading]); // Re-bind if dependencies change
+
+
   const fetchHistory = async () => {
-    setIsHistoryLoading(true); // Start loading
+    setIsHistoryLoading(true);
     try {
       const response = await api.get('/api/summaries');
       setSummariesHistory(response.data);
@@ -38,7 +58,7 @@ function App() {
       console.error('Failed to fetch history:', error);
       toast.error('Failed to fetch history.');
     } finally {
-      setIsHistoryLoading(false); // End loading
+      setIsHistoryLoading(false);
     }
   };
 
@@ -83,7 +103,7 @@ function App() {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       setSummary(response.data);
-      fetchHistory();
+      await fetchHistory();
       setShowHistory(false);
       toast.success('Summary generated successfully!');
     } catch (error) {
@@ -104,7 +124,7 @@ function App() {
     if (!summary || !summary.shareId) return;
     const shareLink = `${window.location.origin}/summary/${summary.shareId}`;
     navigator.clipboard.writeText(shareLink).then(() => {
-      toast.success('Shareable link copied to clipboard!');
+      toast.success('Shareable link copied!');
     });
   };
 
@@ -127,13 +147,31 @@ function App() {
     }
   };
 
+  // --- NEW: Rename Summary Function ---
+  const handleRenameSummary = async (summaryId, newTitle) => {
+    // Optimistically update the UI first for a faster feel
+    const originalSummaries = [...summariesHistory];
+    const updatedSummaries = summariesHistory.map(s => 
+      s._id === summaryId ? { ...s, title: newTitle } : s
+    );
+    setSummariesHistory(updatedSummaries);
+
+    try {
+      await api.patch(`/api/summaries/${summaryId}`, { title: newTitle });
+      toast.success('Summary renamed!');
+    } catch (error) {
+      // If the API call fails, revert the change and show an error
+      setSummariesHistory(originalSummaries);
+      toast.error('Failed to rename summary.');
+    }
+  };
+
   if (!user) {
     return <Login />;
   }
 
   return (
     <>
-      {/* Toaster component for notifications */}
       <Toaster position="bottom-right" reverseOrder={false} />
       <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
         <motion.div
@@ -156,12 +194,14 @@ function App() {
             user={user}
             summary={summary}
             summariesHistory={summariesHistory}
-            isHistoryLoading={isHistoryLoading} // Pass loading state
+            isHistoryLoading={isHistoryLoading}
             showHistory={showHistory} setShowHistory={setShowHistory}
             recipient={recipient} setRecipient={setRecipient}
+            searchTerm={searchTerm} setSearchTerm={setSearchTerm} // Pass search state
             handleSelectSummaryFromHistory={handleSelectSummaryFromHistory}
             handleCopyToClipboard={handleCopyToClipboard}
             handleShareEmail={handleShareEmail}
+            handleRenameSummary={handleRenameSummary} // Pass rename function
           />
         </motion.div>
       </div>

@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { UploadCloud, Sparkles, RotateCcw } from 'lucide-react'; // Added RotateCcw for the clear button
+import { UploadCloud, Sparkles, RotateCcw } from 'lucide-react';
 
 const promptTemplates = [
   { title: 'Executive Summary', prompt: 'Summarize the following transcript into a concise executive summary, highlighting the key decisions and outcomes. Format the output as clean markdown.' },
@@ -16,8 +16,14 @@ function Summarizer({
   handleFileChange,
   clearFile,
   handleGenerateSummary,
-  handleClear // New prop for the clear button functionality
+  handleClear
 }) {
+  const [isMac, setIsMac] = useState(false);
+
+  // Check the user's OS to display the correct shortcut key
+  useEffect(() => {
+    setIsMac(navigator.platform.toUpperCase().indexOf('MAC') >= 0);
+  }, []);
 
   const sectionVariants = {
     hidden: { opacity: 0, y: 20 },
@@ -25,7 +31,6 @@ function Summarizer({
   };
 
   return (
-    // Updated main container with glassmorphism effect
     <div className="lg:w-2/3 w-full bg-white/60 backdrop-blur-xl border border-white/20 rounded-2xl shadow-xl p-8 space-y-8">
       <div className="flex justify-between items-center">
         <div className="text-left">
@@ -97,6 +102,12 @@ function Summarizer({
           <svg className="animate-spin h-5 w-5 mr-3" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
         ) : <Sparkles className="h-6 w-6 mr-2" />}
         {isLoading ? 'Generating...' : 'Generate Summary'}
+        {/* --- NEW: Keyboard Shortcut Hint --- */}
+        {!isLoading && (
+          <span className="ml-auto text-xs opacity-70">
+            {isMac ? '⌘ + ↵' : 'Ctrl + Enter'}
+          </span>
+        )}
       </motion.button>
     </div>
   );
