@@ -1,139 +1,103 @@
 <div align="center">
-  <img src="https://placehold.co/800x200/6366F1/FFFFFF?text=LexoraAI&font=raleway" alt="LexoraAI Banner">
-  <h1 align="center">LexoraAI - AI-Powered Meeting Summarizer</h1>
+  <h1 align="center">
+    <img src="https://placehold.co/150x150/6366F1/FFFFFF?text=L&font=raleway" alt="LexoraAI Logo"><br>
+    LexoraAI
+  </h1>
   <p align="center">
-    Clarity from conversation. Instantly transform your meeting notes into concise, actionable summaries.
+    <strong>Clarity from conversation.</strong>
+    <br />
+    Tired of messy meeting notes? LexoraAI uses AI to instantly transform your transcripts into clear, actionable summaries, so you can focus on what matters.
   </p>
   
   <!-- Badges -->
   <p align="center">
     <img src="https://img.shields.io/badge/MERN-Stack-blue?style=for-the-badge&logo=mongodb" alt="MERN Stack">
     <img src="https://img.shields.io/badge/Groq-AI-orange?style=for-the-badge&logo=groq" alt="Groq AI">
-    <img src="https://img.shields.io/badge/Google-OAuth-red?style=for-the-badge&logo=google" alt="Google OAuth">
-    <img src="https://img.shields.io/badge/TailwindCSS-Styling-cyan?style=for-the-badge&logo=tailwindcss" alt="Tailwind CSS">
+    <img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" alt="MIT License">
   </p>
+</div>
+
+<div align="center">
+  
+  *A placeholder for a GIF showing LexoraAI in action. This is the best way to quickly show users what your app does!*
+  <img src="https://placehold.co/800x450/FFFFFF/333333?text=App%20Demo%20GIF" alt="LexoraAI Demo GIF">
+
 </div>
 
 ---
 
-## ✨ Features
+## 🤔 Why LexoraAI?
 
-LexoraAI is a full-stack application designed to streamline your workflow by leveraging the power of AI to analyze and summarize your meeting transcripts.
+We've all been there. You finish an hour-long meeting, and you're left with pages of jumbled notes. What were the key decisions? Who is responsible for what? Finding the important signals in the noise is a chore.
 
--   **🔐 Secure Google Authentication:** Login securely and effortlessly with your Google account. All your data is linked to your account and kept private.
--   **📄 File & Text Input:** Seamlessly upload `.txt` and `.docx` files or simply paste your transcript text directly into the application.
--   **🤖 AI-Powered Summarization:** Utilizes the lightning-fast Groq API to generate high-quality, structured summaries based on your instructions.
--   **📝 Editable Summaries:** The generated summary is fully editable, allowing you to make refinements and corrections before sharing.
--   **📧 Personalized Email Sharing:** Share your final summary via email, sent directly *from your own authenticated Gmail account*.
--   **🔗 Shareable Links:** Generate a unique, public link for any summary to easily share it with colleagues who don't have an account.
--   **🗂️ Personal History:** All your generated summaries are automatically saved to your private history, linked to your account.
--   **🎨 Modern, Animated UI:** A clean, professional user interface built with Tailwind CSS and Framer Motion, featuring a "glassmorphism" theme and smooth animations.
+LexoraAI was built to solve this. It's a smart assistant that reads your notes for you, understands your instructions, and delivers the perfect summary every time. Whether you're a busy executive, a diligent project manager, or a student trying to keep up, LexoraAI helps you save time and stay organized.
 
 ---
 
-## 🛠️ Tech Stack
+## ✨ Core Features
 
-The application is built with a modern, robust, and scalable tech stack, organized by purpose.
-
--   **Frontend:**
-    -   **Framework:** `React` `Vite`
-    -   **Styling:** `Tailwind CSS`
-    -   **Animation:** `Framer Motion`
-    -   **UI Components:** `Headless UI`
-    -   **Icons & Notifications:** `Lucide React` `react-hot-toast`
--   **Backend:**
-    -   **Runtime & Framework:** `Node.js` `Express.js`
-    -   **Database:** `MongoDB` `Mongoose`
--   **AI & Services:**
-    -   **Language Model:** `Groq API`
-    -   **Authentication:** `Passport.js` `Google OAuth 2.0`
-    -   **Email Service:** `Gmail API`
+-   **🔐 Secure Google Login:** Jump right in with your Google account. Your data is your own, always.
+-   **🤖 Smart Summaries:** Powered by the lightning-fast Groq API, get high-quality summaries in seconds.
+-   **✍️ You're in Control:** The AI gives you a great starting point, but you can always edit the final summary to perfection.
+-   **📤 Share with Anyone:** Send summaries directly from your own Gmail account or copy a public shareable link for anyone to view.
+-   **🗂️ Your Personal Archive:** Every summary is automatically saved to your private, searchable history. Never lose track of a meeting's outcome again.
+-   **🎨 A Joy to Use:** A clean, modern interface with smooth animations that make your workflow feel effortless.
 
 ---
 
-## 📂 Project Structure
+## 🛠️ Built With
 
-The codebase is organized into a clean, modular structure to separate concerns and improve maintainability.
+LexoraAI is built on a modern, robust, and scalable tech stack.
 
--   📁 **client/** — Contains all Frontend React code
-    -   📁 **src/**
-        -   📁 **components/** — Reusable UI components (Header, Footer, etc.)
-        -   📄 `App.jsx` — Main component, manages state and logic
-        -   📄 `api.js` — Centralized Axios instance for API calls
-        -   📄 `AuthContext.jsx` — Manages global user authentication state
-        -   📄 `main.jsx` — Entry point, sets up routing
-        -   📄 `SharedSummary.jsx` — The public page for viewing a shared summary
--   📁 **server/** — Contains all Backend Node.js code
-    -   📁 **middleware/** — Custom middleware (e.g., requireLogin)
-    -   📁 **models/** — Mongoose schemas (User, Summary)
-    -   📁 **routes/** — API endpoint definitions (auth, summaries)
-    -   📁 **services/** — Third-party service configurations (Passport.js)
-    -   📄 `.env` — Environment variables (API keys, DB URI)
-    -   📄 `server.js` — Main server entry point, ties everything together
+<div align="center">
+  <img src="https://skillicons.dev/icons?i=react,tailwind,nodejs,express,mongo,vite" alt="Tech Stack Icons" />
+</div>
+
+-   **Frontend:** React (with Vite), Tailwind CSS for styling, and Framer Motion for animations.
+-   **Backend:** Node.js, Express.js, and Mongoose for database modeling.
+-   **Database:** MongoDB Atlas.
+-   **AI & Services:** Groq API for language processing and Google OAuth / Gmail API for secure authentication and email.
 
 ---
 
 ## 🚀 Getting Started
 
-To get a local copy up and running, follow these simple steps.
+Want to run the project locally? Here’s how you can do it.
 
-### Prerequisites
-
--   Node.js (v18 or later)
--   npm
--   A MongoDB Atlas account (for the database)
--   A Google Cloud Platform account (for OAuth and Gmail API credentials)
-
-### Installation
-
-1.  **Clone the repository:**
+1.  **Clone the Repo:**
     ```sh
     git clone [https://github.com/your-username/lexora-ai.git](https://github.com/your-username/lexora-ai.git)
     cd lexora-ai
     ```
 
-2.  **Setup the Backend:**
-    ```sh
-    cd server
-    npm install
-    ```
-    Create a `.env` file in the `server` directory and add the following variables:
-    ```env
-    MONGODB_URI="Your MongoDB Atlas connection string"
-    GOOGLE_CLIENT_ID="Your Google OAuth Client ID"
-    GOOGLE_CLIENT_SECRET="Your Google OAuth Client Secret"
-    COOKIE_KEY="A long random string for session encryption"
-    GROQ_API_KEY="Your Groq API key"
-    ```
+2.  **Set Up the Backend:**
+    -   Navigate to the `server` directory (`cd server`).
+    -   Install dependencies: `npm install`.
+    -   Create a `.env` file and fill in your API keys (see the original `.env.example`).
 
-3.  **Setup the Frontend:**
-    ```sh
-    cd ../client
-    npm install
-    ```
+3.  **Set Up the Frontend:**
+    -   Navigate to the `client` directory (`cd ../client`).
+    -   Install dependencies: `npm install`.
 
-### Running the Application
-
-1.  **Start the backend server:**
-    ```sh
-    # From the /server directory
-    npm run dev
-    ```
-2.  **Start the frontend development server:**
-    ```sh
-    # From the /client directory
-    npm start
-    ```
-    The application will be available at `http://localhost:5173`.
+4.  **Run the App:**
+    -   Start the backend server: `npm run dev` (in the `/server` folder).
+    -   Start the frontend server: `npm start` (in the `/client` folder).
 
 ---
 
-## 🗺️ Future Roadmap
+## 🤝 How to Contribute
 
--   [ ] **Conversational Editing:** Allow users to refine summaries with natural language commands.
--   [ ] **Export Options:** Add functionality to export summaries as PDF, Markdown, or TXT files.
--   [ ] **Custom Prompts:** Allow users to save and manage their own prompt templates.
--   [ ] **Team Collaboration:** Introduce shared workspaces for teams.
+Contributions are what make the open-source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
+
+If you have a suggestion that would make this better, please fork the repo and create a pull request. You can also simply open an issue with the tag "enhancement".
+
+1.  **Fork the Project**
+2.  **Create your Feature Branch** (`git checkout -b feature/AmazingFeature`)
+3.  **Commit your Changes** (`git commit -m 'Add some AmazingFeature'`)
+4.  **Push to the Branch** (`git push origin feature/AmazingFeature`)
+5.  **Open a Pull Request**
+
+Don't forget to give the project a star! Thanks again!
 
 ---
 
