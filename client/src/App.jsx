@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import api from './api';
 import { useAuth } from './AuthContext';
 import { motion } from 'framer-motion';
+import { Toaster, toast } from 'react-hot-toast'; // Import Toaster and toast
 
 // Import the new components
 import Login from './components/Login';
@@ -14,7 +15,7 @@ function App() {
   const [prompt, setPrompt] = useState('Summarize the following transcript into a concise executive summary, highlighting the key decisions and outcomes. Format the output as clean markdown.');
   const [summary, setSummary] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [statusMessage, setStatusMessage] = useState('');
+  const [isHistoryLoading, setIsHistoryLoading] = useState(true); // New state for history loading
   const [selectedFile, setSelectedFile] = useState(null);
   const [summariesHistory, setSummariesHistory] = useState([]);
   const [showHistory, setShowHistory] = useState(true);
@@ -29,11 +30,15 @@ function App() {
   }, [user]);
 
   const fetchHistory = async () => {
+    setIsHistoryLoading(true); // Start loading
     try {
       const response = await api.get('/api/summaries');
       setSummariesHistory(response.data);
     } catch (error) {
       console.error('Failed to fetch history:', error);
+      toast.error('Failed to fetch history.');
+    } finally {
+      setIsHistoryLoading(false); // End loading
     }
   };
 
@@ -49,7 +54,6 @@ function App() {
     }
   };
 
-  // New function to clear the inputs
   const handleClear = () => {
     setTranscript('');
     setSelectedFile(null);
@@ -62,11 +66,10 @@ function App() {
 
   const handleGenerateSummary = async () => {
     if (!selectedFile && !transcript) {
-      setStatusMessage('Please upload a transcript file or paste the text.');
+      toast.error('Please upload a transcript file or paste the text.');
       return;
     }
     setIsLoading(true);
-    setStatusMessage('');
     const formData = new FormData();
     formData.append('prompt', prompt);
     if (selectedFile) {
@@ -82,9 +85,10 @@ function App() {
       setSummary(response.data);
       fetchHistory();
       setShowHistory(false);
+      toast.success('Summary generated successfully!');
     } catch (error) {
       const errorMsg = error.response?.data?.error || 'Could not generate summary.';
-      setStatusMessage(`Error: ${errorMsg}`);
+      toast.error(`Error: ${errorMsg}`);
     }
     setIsLoading(false);
   };
@@ -100,26 +104,25 @@ function App() {
     if (!summary || !summary.shareId) return;
     const shareLink = `${window.location.origin}/summary/${summary.shareId}`;
     navigator.clipboard.writeText(shareLink).then(() => {
-      setStatusMessage('Shareable link copied to clipboard!');
-      setTimeout(() => setStatusMessage(''), 3000);
+      toast.success('Shareable link copied to clipboard!');
     });
   };
 
   const handleShareEmail = async () => {
     if (!summary || !recipient) {
-      setStatusMessage('Please provide a recipient email.');
+      toast.error('Please provide a recipient email.');
       return;
     }
-    setStatusMessage('Sending email...');
+    const toastId = toast.loading('Sending email...');
     try {
       await api.post('/api/share', {
         summary: summary.summaryText,
         recipient,
       });
-      setStatusMessage('Email sent successfully!');
+      toast.success('Email sent successfully!', { id: toastId });
       setRecipient('');
     } catch (error) {
-      setStatusMessage('Error: Could not send email.');
+      toast.error('Error: Could not send email.', { id: toastId });
       console.error('Sharing error:', error);
     }
   };
@@ -129,36 +132,40 @@ function App() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-      <motion.div
-        className="w-full flex flex-col lg:flex-row lg:space-x-8 space-y-8 lg:space-y-0"
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.2 }}
-      >
-        <Summarizer
-          transcript={transcript} setTranscript={setTranscript}
-          prompt={prompt} setPrompt={setPrompt}
-          isLoading={isLoading}
-          selectedFile={selectedFile}
-          handleFileChange={handleFileChange}
-          clearFile={clearFile}
-          handleGenerateSummary={handleGenerateSummary}
-          handleClear={handleClear} // Pass the new clear function
-        />
-        <ResultsPanel
-          user={user}
-          summary={summary}
-          summariesHistory={summariesHistory}
-          showHistory={showHistory} setShowHistory={setShowHistory}
-          statusMessage={statusMessage} setStatusMessage={setStatusMessage} // Pass the setter function
-          recipient={recipient} setRecipient={setRecipient}
-          handleSelectSummaryFromHistory={handleSelectSummaryFromHistory}
-          handleCopyToClipboard={handleCopyToClipboard}
-          handleShareEmail={handleShareEmail}
-        />
-      </motion.div>
-    </div>
+    <>
+      {/* Toaster component for notifications */}
+      <Toaster position="bottom-right" reverseOrder={false} />
+      <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+        <motion.div
+          className="w-full flex flex-col lg:flex-row lg:space-x-8 space-y-8 lg:space-y-0"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+        >
+          <Summarizer
+            transcript={transcript} setTranscript={setTranscript}
+            prompt={prompt} setPrompt={setPrompt}
+            isLoading={isLoading}
+            selectedFile={selectedFile}
+            handleFileChange={handleFileChange}
+            clearFile={clearFile}
+            handleGenerateSummary={handleGenerateSummary}
+            handleClear={handleClear}
+          />
+          <ResultsPanel
+            user={user}
+            summary={summary}
+            summariesHistory={summariesHistory}
+            isHistoryLoading={isHistoryLoading} // Pass loading state
+            showHistory={showHistory} setShowHistory={setShowHistory}
+            recipient={recipient} setRecipient={setRecipient}
+            handleSelectSummaryFromHistory={handleSelectSummaryFromHistory}
+            handleCopyToClipboard={handleCopyToClipboard}
+            handleShareEmail={handleShareEmail}
+          />
+        </motion.div>
+      </div>
+    </>
   );
 }
 

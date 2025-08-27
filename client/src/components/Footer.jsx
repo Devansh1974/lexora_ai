@@ -6,16 +6,25 @@ function Footer() {
   return (
     <footer className="bg-white/70 backdrop-blur-lg border-t border-slate-200">
       <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col items-center">
-          <div className="flex items-center space-x-2">
+        <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+          
+          {/* Left Section: Logo and Tagline */}
+          <div className="text-center md:text-left">
             <span className="text-lg font-semibold bg-gradient-to-r from-blue-600 to-purple-600 text-transparent bg-clip-text">
               LexoraAI
             </span>
+            <p className="mt-1 text-sm text-slate-500">
+              Clarity from conversation.
+            </p>
           </div>
-          <p className="mt-4 text-center text-base text-slate-500">
-            Made by Devansh Singh
-          </p>
-          <div className="mt-4 flex space-x-6">
+
+          {/* Center Section: Copyright */}
+          <div className="text-center text-base text-slate-500">
+             <p>&copy; {currentYear} Made by Devansh Singh</p>
+          </div>
+          
+          {/* Right Section: Social Links */}
+          <div className="flex space-x-6">
             <a href="mailto:devanshsingh1974@gmail.com" className="text-slate-400 hover:text-slate-500 transition">
               <span className="sr-only">Email</span>
               <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -29,9 +38,7 @@ function Footer() {
               </svg>
             </a>
           </div>
-          <p className="mt-8 text-center text-base text-slate-400">
-            &copy; {currentYear} LexoraAI. All rights reserved.
-          </p>
+
         </div>
       </div>
     </footer>

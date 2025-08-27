@@ -1,11 +1,34 @@
 import React from 'react';
-import { motion } from 'framer-motion'; // Import for animations
+import { motion } from 'framer-motion';
 
-function History({ summaries, onSelectSummary }) {
+// A new component for the animated loading skeleton placeholder
+const SkeletonItem = () => (
+  <div className="p-4 border border-slate-200 rounded-lg animate-pulse">
+    <div className="h-4 bg-slate-200 rounded w-3/4 mb-2"></div>
+    <div className="h-3 bg-slate-200 rounded w-full mb-3"></div>
+    <div className="h-2 bg-slate-200 rounded w-1/2"></div>
+  </div>
+);
+
+function History({ summaries, onSelectSummary, isLoading }) { // Added isLoading prop
+  
+  // First, handle the loading state
+  if (isLoading) {
+    return (
+      <div className="space-y-3">
+        <SkeletonItem />
+        <SkeletonItem />
+        <SkeletonItem />
+      </div>
+    );
+  }
+
+  // Next, handle the improved empty state
   if (!summaries.length) {
     return (
-      <div className="text-center p-4 bg-slate-50 rounded-lg">
-        <p className="text-slate-500">Your generated summaries will appear here.</p>
+      <div className="text-center p-8 bg-slate-50/70 rounded-lg border border-slate-200">
+        <h3 className="font-semibold text-slate-700">Ready to Start?</h3>
+        <p className="text-slate-500 mt-1 text-sm">Generate your first summary to see your history populate here!</p>
       </div>
     );
   }
@@ -16,7 +39,7 @@ function History({ summaries, onSelectSummary }) {
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.1,
+        staggerChildren: 0.07,
       },
     },
   };
@@ -43,7 +66,7 @@ function History({ summaries, onSelectSummary }) {
           onClick={() => onSelectSummary(summary)}
           className="p-4 border border-slate-200 rounded-lg cursor-pointer transition-shadow duration-200 hover:shadow-md hover:bg-slate-50"
           variants={itemVariants}
-          whileHover={{ scale: 1.03, zIndex: 10 }} // Lift effect on hover
+          whileHover={{ scale: 1.03, zIndex: 10 }}
           transition={{ duration: 0.2 }}
         >
           <p className="font-semibold text-slate-800 truncate">{summary.prompt}</p>
