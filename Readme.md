@@ -33,52 +33,46 @@ LexoraAI is a full-stack application designed to streamline your workflow by lev
 
 ## 🛠️ Tech Stack
 
-This project is built on the MERN stack and utilizes several modern technologies to deliver a fast, secure, and user-friendly experience.
+The application is built with a modern, robust, and scalable tech stack, organized by purpose.
 
-| Tier      | Technology   |                                                                                                                |
-| **Frontend** | `React` `Vite` `Tailwind CSS` `Framer Motion` `Lucide React` `react-hot-toast` `Headless UI` |
-| **Backend** | `Node.js` `Express.js` `MongoDB` `Mongoose`                                                    |
-| **AI** | `Groq API` (for summarization)                                                                 |
-| **Auth** | `Passport.js` `Google OAuth 2.0` `Gmail API`                                                   |
+-   **Frontend:**
+    -   **Framework:** `React` `Vite`
+    -   **Styling:** `Tailwind CSS`
+    -   **Animation:** `Framer Motion`
+    -   **UI Components:** `Headless UI`
+    -   **Icons & Notifications:** `Lucide React` `react-hot-toast`
+-   **Backend:**
+    -   **Runtime & Framework:** `Node.js` `Express.js`
+    -   **Database:** `MongoDB` `Mongoose`
+-   **AI & Services:**
+    -   **Language Model:** `Groq API`
+    -   **Authentication:** `Passport.js` `Google OAuth 2.0`
+    -   **Email Service:** `Gmail API`
 
 ---
 
 ## 📂 Project Structure
 
-The project is organized into two main directories: `client` (frontend) and `server` (backend), following a clean, modular structure.
+The codebase is organized into a clean, modular structure to separate concerns and improve maintainability.
 
 
 lexora-ai/
-├── client/ (Frontend - React)
-│   ├── public/
+├── client/                 # Contains all Frontend React code
 │   └── src/
-│       ├── components/
-│       │   ├── Footer.jsx
-│       │   ├── Header.jsx
-│       │   ├── History.jsx
-│       │   ├── Layout.jsx
-│       │   ├── Login.jsx
-│       │   ├── ResultsPanel.jsx
-│       │   └── Summarizer.jsx
-│       ├── App.jsx
-│       ├── api.js
-│       ├── AuthContext.jsx
-│       ├── index.css
-│       ├── main.jsx
-│       └── SharedSummary.jsx
-└── server/ (Backend - Node.js)
-├── middleware/
-│   └── requireLogin.js
-├── models/
-│   ├── Summary.js
-│   └── User.js
-├── routes/
-│   ├── authRoutes.js
-│   └── summaryRoutes.js
-├── services/
-│   └── passport.js
-├── .env
-└── server.js
+│       ├── components/     # Reusable UI components (Header, Footer, etc.)
+│       ├── App.jsx         # Main component, manages state and logic
+│       ├── api.js          # Centralized Axios instance for API calls
+│       ├── AuthContext.jsx # Manages global user authentication state
+│       ├── main.jsx        # Entry point, sets up routing
+│       └── SharedSummary.jsx # The public page for viewing a shared summary
+│
+└── server/                 # Contains all Backend Node.js code
+├── middleware/         # Custom middleware (e.g., requireLogin)
+├── models/             # Mongoose schemas (User, Summary)
+├── routes/             # API endpoint definitions (auth, summaries)
+├── services/           # Third-party service configurations (Passport.js)
+├── .env                # Environment variables (API keys, DB URI)
+└── server.js           # Main server entry point, ties everything together
 
 
 ---
