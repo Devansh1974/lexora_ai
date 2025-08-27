@@ -55,25 +55,21 @@ The application is built with a modern, robust, and scalable tech stack, organiz
 
 The codebase is organized into a clean, modular structure to separate concerns and improve maintainability.
 
-
-lexora-ai/
-├── client/                 # Contains all Frontend React code
-│   └── src/
-│       ├── components/     # Reusable UI components (Header, Footer, etc.)
-│       ├── App.jsx         # Main component, manages state and logic
-│       ├── api.js          # Centralized Axios instance for API calls
-│       ├── AuthContext.jsx # Manages global user authentication state
-│       ├── main.jsx        # Entry point, sets up routing
-│       └── SharedSummary.jsx # The public page for viewing a shared summary
-│
-└── server/                 # Contains all Backend Node.js code
-├── middleware/         # Custom middleware (e.g., requireLogin)
-├── models/             # Mongoose schemas (User, Summary)
-├── routes/             # API endpoint definitions (auth, summaries)
-├── services/           # Third-party service configurations (Passport.js)
-├── .env                # Environment variables (API keys, DB URI)
-└── server.js           # Main server entry point, ties everything together
-
+-   📁 **client/** — Contains all Frontend React code
+    -   📁 **src/**
+        -   📁 **components/** — Reusable UI components (Header, Footer, etc.)
+        -   📄 `App.jsx` — Main component, manages state and logic
+        -   📄 `api.js` — Centralized Axios instance for API calls
+        -   📄 `AuthContext.jsx` — Manages global user authentication state
+        -   📄 `main.jsx` — Entry point, sets up routing
+        -   📄 `SharedSummary.jsx` — The public page for viewing a shared summary
+-   📁 **server/** — Contains all Backend Node.js code
+    -   📁 **middleware/** — Custom middleware (e.g., requireLogin)
+    -   📁 **models/** — Mongoose schemas (User, Summary)
+    -   📁 **routes/** — API endpoint definitions (auth, summaries)
+    -   📁 **services/** — Third-party service configurations (Passport.js)
+    -   📄 `.env` — Environment variables (API keys, DB URI)
+    -   📄 `server.js` — Main server entry point, ties everything together
 
 ---
 
