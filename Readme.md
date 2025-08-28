@@ -28,7 +28,7 @@
 
 ## 🤔 Why LexoraAI?
 
-We've all been there. You finish an hour-long meeting, and you're left with pages of jumbled notes. What were the key decisions? Who is responsible for what? Finding the important signals in the noise is a chore.
+We've all been there. You Finish an hour-long meeting, and you're left with pages of jumbled notes. What were the key decisions? Who is responsible for what? Finding the important signals in the noise is a chore.
 
 LexoraAI was built to solve this. It's a smart assistant that reads your notes for you, understands your instructions, and delivers the perfect summary every time. Whether you're a busy executive, a diligent project manager, or a student trying to keep up, LexoraAI helps you save time and stay Organized.
 
