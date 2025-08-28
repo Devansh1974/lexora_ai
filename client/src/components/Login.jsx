@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { FileText, Share2, MessageSquare } from 'lucide-react'; // Icons for the feature list
 
 // A simple, inline SVG component for the Google G logo
 const GoogleIcon = () => (
@@ -11,27 +12,114 @@ const GoogleIcon = () => (
   </svg>
 );
 
+const Feature = ({ icon, title, children }) => (
+  <motion.div 
+    className="flex items-start space-x-4"
+    variants={{
+      hidden: { opacity: 0, y: 20 },
+      visible: { opacity: 1, y: 0 }
+    }}
+  >
+    <div className="flex-shrink-0 h-12 w-12 rounded-lg bg-slate-800/50 border border-white/10 flex items-center justify-center">
+      {icon}
+    </div>
+    <div>
+      <h3 className="text-lg font-semibold text-white">{title}</h3>
+      <p className="mt-1 text-slate-400">{children}</p>
+    </div>
+  </motion.div>
+);
+
 function Login() {
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: { staggerChildren: 0.2, delayChildren: 0.3 }
+    }
+  };
+
   return (
-    <div className="w-full flex items-center justify-center p-4" style={{ minHeight: 'calc(100vh - 140px)' }}>
-      <motion.div
-        className="bg-white rounded-2xl shadow-2xl p-12 text-center max-w-lg"
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.5, ease: 'easeOut' }}
-      >
-        <h1 className="text-4xl font-bold text-slate-800">Welcome to LexoraAI</h1>
-        <p className="mt-4 text-lg text-slate-600">Please log in to summarize your meetings, view your history, and share insights.</p>
-        <motion.a
-          href="http://localhost:5001/auth/google"
-          className="mt-8 inline-flex items-center justify-center bg-white hover:bg-slate-100 border border-slate-300 text-slate-700 font-bold py-3 px-6 rounded-lg transition duration-200 shadow-sm text-lg"
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
+    <div className="w-full min-h-[calc(100vh-140px)] flex items-center justify-center p-4">
+      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+        
+        {/* Left Column: Text Content */}
+        <motion.div 
+          className="text-center lg:text-left"
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
         >
-          <GoogleIcon />
-          Login with Google
-        </motion.a>
-      </motion.div>
+          <motion.h1 
+            className="text-4xl lg:text-6xl font-bold text-white tracking-tight"
+            variants={{
+              hidden: { opacity: 0, y: 20 },
+              visible: { opacity: 1, y: 0 }
+            }}
+          >
+            Turn Messy Notes into <span className="bg-gradient-to-r from-blue-400 to-purple-400 text-transparent bg-clip-text">Actionable Insights</span>
+          </motion.h1>
+
+          <motion.p 
+            className="mt-6 text-lg text-slate-300 max-w-xl mx-auto lg:mx-0"
+            variants={{
+              hidden: { opacity: 0, y: 20 },
+              visible: { opacity: 1, y: 0 }
+            }}
+          >
+            LexoraAI is your intelligent assistant for meeting summaries. Upload any transcript, provide an instruction, and get a perfectly formatted summary in seconds.
+          </motion.p>
+
+          <motion.div 
+            className="mt-10 space-y-8"
+            variants={containerVariants} // This will stagger the children inside
+          >
+            <Feature icon={<FileText className="h-6 w-6 text-blue-400" />} title="Instant Summaries">
+              From long transcripts to concise bullet points, executive summaries, or action items.
+            </Feature>
+            <Feature icon={<MessageSquare className="h-6 w-6 text-purple-400" />} title="Conversational Editing">
+              Refine your summary with simple chat commands. Ask the AI to make it shorter, change the tone, or focus on key topics.
+            </Feature>
+            <Feature icon={<Share2 className="h-6 w-6 text-green-400" />} title="Share & Collaborate">
+              Share your insights with a public link or send summaries directly from your own email account.
+            </Feature>
+          </motion.div>
+
+          <motion.div
+            variants={{
+              hidden: { opacity: 0, y: 20 },
+              visible: { opacity: 1, y: 0 }
+            }}
+            transition={{ delay: 1.0 }} // A longer delay for the final button
+          >
+            <motion.a
+              href="http://localhost:5001/auth/google"
+              className="mt-12 inline-flex items-center justify-center bg-slate-100 hover:bg-slate-200 border border-transparent text-slate-800 font-bold py-3 px-8 rounded-lg transition duration-200 shadow-lg text-lg"
+              whileHover={{ scale: 1.05, boxShadow: '0px 0px 30px rgba(255, 255, 255, 0.2)' }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <GoogleIcon />
+              Get Started with Google
+            </motion.a>
+          </motion.div>
+        </motion.div>
+
+        {/* Right Column: Visual */}
+        <motion.div 
+          className="hidden lg:block"
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.7, delay: 0.5, ease: [0.25, 1, 0.5, 1] }}
+        >
+          <img 
+            src="https://placehold.co/600x600/0f172a/6366F1?text=AI&font=raleway" 
+            alt="Abstract AI visualization"
+            className="rounded-2xl shadow-2xl"
+            onError={(e) => { e.target.onerror = null; e.target.src='https://placehold.co/600x600/0f172a/FFFFFF?text=LexoraAI'; }}
+          />
+        </motion.div>
+
+      </div>
     </div>
   );
 }
