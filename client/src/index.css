@@ -1,1 +1,11 @@
 @import "tailwindcss";
+
+/* Import the Inter font for a clean, modern look */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+/* Set the base styles for our dark AI theme */
+body {
+  background-color: #0f172a; /* slate-900 */
+  font-family: 'Inter', sans-serif;
+  color: #cbd5e1; /* slate-300 */
+}

@@ -183,7 +183,7 @@ function App() {
     }
   };
 
-  // --- NEW: Conversational Editing Functions ---
+  // --- Conversational Editing Functions ---
 
   const handleRefineSummary = async (currentSummary, refinementPrompt) => {
     setIsRefining(true);
@@ -204,6 +204,9 @@ function App() {
   const handleSaveChanges = async (summaryId, newSummaryText) => {
     const toastId = toast.loading('Saving changes...');
     try {
+      // Update the summary in the main state immediately for a responsive feel
+      setSummary(prev => ({ ...prev, summaryText: newSummaryText }));
+      
       await api.patch(`/api/summaries/${summaryId}/text`, { summaryText: newSummaryText });
       await fetchHistory(); // Refresh history with the latest saved version
       toast.success('Changes saved!', { id: toastId });
@@ -222,15 +225,15 @@ function App() {
     });
   };
 
-  const handleShareEmail = async () => {
-    if (!summary || !recipient) {
+  const handleShareEmail = async (currentSummaryText) => {
+    if (!currentSummaryText || !recipient) {
       toast.error('Please provide a recipient email.');
       return;
     }
     const toastId = toast.loading('Sending email...');
     try {
       await api.post('/api/share', {
-        summary: summary.summaryText,
+        summary: currentSummaryText,
         recipient,
       });
       toast.success('Email sent successfully!', { id: toastId });
@@ -241,19 +244,26 @@ function App() {
     }
   };
 
-  const handleExport = (format) => {
+  const handleExport = (format, currentSummaryText) => {
     if (!summary) {
       toast.error('No summary to export.');
       return;
     }
     const title = summary.title.replace(/[^a-z0-9]/gi, '_').toLowerCase();
-    const content = summary.summaryText;
+    const content = currentSummaryText;
 
     if (format === 'pdf') {
       const input = document.getElementById('summary-content');
       if (input) {
         toast.loading('Generating PDF...');
-        html2canvas(input, { scale: 2 }).then(canvas => {
+        html2canvas(input, { 
+          scale: 2,
+          backgroundColor: null, // Use transparent background for canvas
+          onclone: (document) => {
+            // Style the cloned document for PDF generation
+            document.getElementById('summary-content').style.color = '#000';
+          }
+        }).then(canvas => {
           const imgData = canvas.toDataURL('image/png');
           const pdf = new jsPDF('p', 'mm', 'a4');
           const pdfWidth = pdf.internal.pageSize.getWidth();
