@@ -3,29 +3,35 @@ import api from './api';
 import { useAuth } from './AuthContext';
 import { motion } from 'framer-motion';
 import { Toaster, toast } from 'react-hot-toast';
-import jsPDF from 'jspdf'; // For PDF export
-import html2canvas from 'html2canvas'; // For PDF export
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
-// Import the new components
+// Import all components
 import Login from './components/Login';
 import Summarizer from './components/Summarizer';
 import ResultsPanel from './components/ResultsPanel';
 
 function App() {
   const { user } = useAuth();
+  // State for core functionality
   const [transcript, setTranscript] = useState('');
   const [prompt, setPrompt] = useState('');
   const [summary, setSummary] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isHistoryLoading, setIsHistoryLoading] = useState(true);
   const [selectedFile, setSelectedFile] = useState(null);
+  
+  // State for UI and loading
+  const [isLoading, setIsLoading] = useState(false); // For initial generation
+  const [isHistoryLoading, setIsHistoryLoading] = useState(true);
+  const [isRefining, setIsRefining] = useState(false); // For conversational edits
+
+  // State for panels and child components
   const [summariesHistory, setSummariesHistory] = useState([]);
   const [showHistory, setShowHistory] = useState(true);
   const [recipient, setRecipient] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [prompts, setPrompts] = useState([]);
 
-  // --- Logic Functions ---
+  // --- Core Logic Hooks ---
 
   useEffect(() => {
     if (user) {
@@ -52,6 +58,7 @@ function App() {
     };
   }, [transcript, prompt, selectedFile, isLoading]);
 
+  // --- Data Fetching and Management ---
 
   const fetchHistory = async () => {
     setIsHistoryLoading(true);
@@ -160,6 +167,53 @@ function App() {
     setShowHistory(false);
   };
 
+  const handleRenameSummary = async (summaryId, newTitle) => {
+    const originalSummaries = [...summariesHistory];
+    const updatedSummaries = summariesHistory.map(s => 
+      s._id === summaryId ? { ...s, title: newTitle } : s
+    );
+    setSummariesHistory(updatedSummaries);
+
+    try {
+      await api.patch(`/api/summaries/${summaryId}`, { title: newTitle });
+      toast.success('Summary renamed!');
+    } catch (error) {
+      setSummariesHistory(originalSummaries);
+      toast.error('Failed to rename summary.');
+    }
+  };
+
+  // --- NEW: Conversational Editing Functions ---
+
+  const handleRefineSummary = async (currentSummary, refinementPrompt) => {
+    setIsRefining(true);
+    try {
+      const response = await api.post('/api/summaries/refine', {
+        currentSummary,
+        refinementPrompt,
+      });
+      return response.data.refinedText;
+    } catch (error) {
+      toast.error('Failed to refine summary.');
+      return null;
+    } finally {
+      setIsRefining(false);
+    }
+  };
+
+  const handleSaveChanges = async (summaryId, newSummaryText) => {
+    const toastId = toast.loading('Saving changes...');
+    try {
+      await api.patch(`/api/summaries/${summaryId}/text`, { summaryText: newSummaryText });
+      await fetchHistory(); // Refresh history with the latest saved version
+      toast.success('Changes saved!', { id: toastId });
+    } catch (error) {
+      toast.error('Failed to save changes.', { id: toastId });
+    }
+  };
+
+  // --- Sharing and Exporting ---
+
   const handleCopyToClipboard = () => {
     if (!summary || !summary.shareId) return;
     const shareLink = `${window.location.origin}/summary/${summary.shareId}`;
@@ -187,28 +241,11 @@ function App() {
     }
   };
 
-  const handleRenameSummary = async (summaryId, newTitle) => {
-    const originalSummaries = [...summariesHistory];
-    const updatedSummaries = summariesHistory.map(s => 
-      s._id === summaryId ? { ...s, title: newTitle } : s
-    );
-    setSummariesHistory(updatedSummaries);
-
-    try {
-      await api.patch(`/api/summaries/${summaryId}`, { title: newTitle });
-      toast.success('Summary renamed!');
-    } catch (error) {
-      setSummariesHistory(originalSummaries);
-      toast.error('Failed to rename summary.');
-    }
-  };
-
   const handleExport = (format) => {
     if (!summary) {
       toast.error('No summary to export.');
       return;
     }
-
     const title = summary.title.replace(/[^a-z0-9]/gi, '_').toLowerCase();
     const content = summary.summaryText;
 
@@ -246,6 +283,8 @@ function App() {
       toast.success(`.${fileExtension} file downloaded!`);
     }
   };
+
+  // --- Render Logic ---
 
   if (!user) {
     return <Login />;
@@ -287,6 +326,9 @@ function App() {
             handleShareEmail={handleShareEmail}
             handleRenameSummary={handleRenameSummary}
             handleExport={handleExport}
+            handleRefineSummary={handleRefineSummary}
+            handleSaveChanges={handleSaveChanges}
+            isRefining={isRefining}
           />
         </motion.div>
       </div>

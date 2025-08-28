@@ -26,7 +26,7 @@ module.exports = app => {
     res.send(summary);
   });
 
-  // POST to generate a new summary (NOW WITH AI-POWERED TITLING)
+  // POST to generate a new summary
   app.post('/api/summarize', requireLogin, upload.single('file'), async (req, res) => {
     try {
       const { prompt } = req.body;
@@ -47,8 +47,7 @@ module.exports = app => {
         return res.status(400).json({ error: 'Transcript and prompt are required.' });
       }
 
-      // --- NEW: AI Title Generation ---
-      let generatedTitle = 'Untitled Summary'; // Default title
+      let generatedTitle = 'Untitled Summary';
       try {
         const titleResponse = await groq.chat.completions.create({
           model: 'llama3-8b-8192',
@@ -57,12 +56,11 @@ module.exports = app => {
             { role: 'user', content: `Analyze the following text and create a concise title for it, no more than 7 words. Text: "${originalContent.substring(0, 1000)}"` },
           ],
         });
-        generatedTitle = titleResponse.choices[0].message.content.replace(/"/g, ''); // Remove quotes
+        generatedTitle = titleResponse.choices[0].message.content.replace(/"/g, '');
       } catch (titleError) {
         console.error("Could not generate AI title, using default.", titleError);
       }
       
-      // --- Main Summarization ---
       const summaryResponse = await groq.chat.completions.create({
         model: 'llama3-8b-8192',
         messages: [
@@ -74,7 +72,7 @@ module.exports = app => {
       const summaryText = summaryResponse.choices[0].message.content;
 
       const newSummary = new Summary({
-        title: generatedTitle, // Use the new AI-generated title
+        title: generatedTitle,
         originalContent,
         prompt,
         summaryText,
@@ -89,7 +87,7 @@ module.exports = app => {
     }
   });
   
-  // --- NEW: PATCH route to update a summary's title ---
+  // PATCH route to update a summary's title
   app.patch('/api/summaries/:id', requireLogin, async (req, res) => {
     const { title } = req.body;
     const { id } = req.params;
@@ -99,18 +97,75 @@ module.exports = app => {
     }
     
     try {
-      const summary = await Summary.findOne({ _id: id, _user: req.user.id });
+      const summary = await Summary.findOneAndUpdate(
+        { _id: id, _user: req.user.id },
+        { title },
+        { new: true }
+      );
 
       if (!summary) {
         return res.status(404).send({ error: 'Summary not found or you do not have permission to edit it.' });
       }
-
-      summary.title = title;
-      await summary.save();
       res.send(summary);
     } catch (error) {
       console.error('Error updating title:', error);
       res.status(500).send({ error: 'Failed to update summary title.' });
+    }
+  });
+
+  // --- NEW: POST route to refine an existing summary ---
+  app.post('/api/summaries/refine', requireLogin, async (req, res) => {
+    const { currentSummary, refinementPrompt } = req.body;
+    if (!currentSummary || !refinementPrompt) {
+      return res.status(400).send({ error: 'Current summary and refinement prompt are required.' });
+    }
+
+    try {
+      const response = await groq.chat.completions.create({
+        model: 'llama3-8b-8192',
+        messages: [
+          { 
+            role: 'system', 
+            content: 'You are an expert editor. Your task is to refine the provided text based on the user\'s instruction. Only output the refined text, without any extra commentary.' 
+          },
+          { 
+            role: 'user', 
+            content: `Here is the text to refine:\n\n---\n${currentSummary}\n---\n\nHere is my instruction: "${refinementPrompt}"`
+          },
+        ],
+      });
+
+      const refinedText = response.choices[0].message.content;
+      res.send({ refinedText });
+
+    } catch (error) {
+      console.error('Error refining summary:', error);
+      res.status(500).send({ error: 'Failed to refine summary.' });
+    }
+  });
+
+  // --- NEW: PATCH route to save the final refined summary text ---
+  app.patch('/api/summaries/:id/text', requireLogin, async (req, res) => {
+    const { summaryText } = req.body;
+    const { id } = req.params;
+
+    if (!summaryText) {
+      return res.status(400).send({ error: 'Summary text is required.' });
+    }
+
+    try {
+      const summary = await Summary.findOneAndUpdate(
+        { _id: id, _user: req.user.id },
+        { summaryText },
+        { new: true }
+      );
+      if (!summary) {
+        return res.status(404).send({ error: 'Summary not found or you do not have permission to save it.' });
+      }
+      res.send(summary);
+    } catch (error) {
+      console.error('Error saving refined summary:', error);
+      res.status(500).send({ error: 'Failed to save changes.' });
     }
   });
 
