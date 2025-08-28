@@ -43,7 +43,7 @@ function Login() {
           className="absolute inset-0 z-0"
         >
           <img 
-            src="https://storage.googleapis.com/gemini-prod-us-east1-9d95cb37/8a5ca085-5a50-4239-9e28-49a93297a3b3" 
+            src="https://images.stockcake.com/public/5/3/5/53591b03-284f-4b4e-b24b-562ca2350bee_large/neural-network-illuminated-stockcake.jpg" 
             alt="Abstract AI visualization"
             className="w-full h-full object-cover opacity-20"
           />
