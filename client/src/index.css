@@ -1,7 +1,8 @@
-@import "tailwindcss";
-
-/* Import the Inter font for a clean, modern look */
+/* Import the Inter font for a clean, modern look (MUST BE FIRST) */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+/* Your original Tailwind import */
+@import "tailwindcss";
 
 /* Set the base styles for our dark AI theme */
 body {
