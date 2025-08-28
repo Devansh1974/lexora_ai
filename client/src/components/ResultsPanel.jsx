@@ -12,10 +12,15 @@ function ResultsPanel({
   searchTerm, setSearchTerm,
   handleSelectSummaryFromHistory,
   handleRenameSummary,
-  // New props for the chat interface
+  // Add all the props that ChatInterface will need
   handleRefineSummary,
   handleSaveChanges,
-  isRefining
+  isRefining,
+  handleCopyToClipboard,
+  handleExport,
+  handleShareEmail,
+  recipient, 
+  setRecipient
 }) {
 
   return (
@@ -42,13 +47,19 @@ function ResultsPanel({
             handleRenameSummary={handleRenameSummary}
           />
         ) : summary ? (
-          // The static display is now replaced with the interactive ChatInterface
           <motion.div className="h-full" initial={{opacity: 0}} animate={{opacity: 1}}>
+            {/* --- CORRECTED: Pass all necessary props down to ChatInterface --- */}
             <ChatInterface 
+              user={user}
               summary={summary}
               handleRefineSummary={handleRefineSummary}
               handleSaveChanges={handleSaveChanges}
               isRefining={isRefining}
+              handleCopyToClipboard={handleCopyToClipboard}
+              handleExport={handleExport}
+              handleShareEmail={handleShareEmail}
+              recipient={recipient}
+              setRecipient={setRecipient}
             />
           </motion.div>
         ) : (
