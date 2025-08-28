@@ -12,7 +12,7 @@ import ResultsPanel from './components/ResultsPanel';
 function App() {
   const { user } = useAuth();
   const [transcript, setTranscript] = useState('');
-  const [prompt, setPrompt] = useState('Summarize the following transcript into a concise executive summary, highlighting the key decisions and outcomes. Format the output as clean markdown.');
+  const [prompt, setPrompt] = useState(''); // Will be set by fetched prompts
   const [summary, setSummary] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isHistoryLoading, setIsHistoryLoading] = useState(true);
@@ -20,19 +20,21 @@ function App() {
   const [summariesHistory, setSummariesHistory] = useState([]);
   const [showHistory, setShowHistory] = useState(true);
   const [recipient, setRecipient] = useState('');
-  const [searchTerm, setSearchTerm] = useState(''); // New state for search
+  const [searchTerm, setSearchTerm] = useState('');
+  const [prompts, setPrompts] = useState([]); // New state for all prompts
 
   // --- Logic Functions ---
 
   useEffect(() => {
     if (user) {
       fetchHistory();
+      fetchPrompts(); // Fetch prompts when user logs in
     } else {
       setSummariesHistory([]);
+      setPrompts([]);
     }
   }, [user]);
 
-  // --- NEW: Keyboard Shortcut Listener ---
   useEffect(() => {
     const handleKeyDown = (event) => {
       if ((event.metaKey || event.ctrlKey) && event.key === 'Enter') {
@@ -46,7 +48,7 @@ function App() {
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [transcript, prompt, selectedFile, isLoading]); // Re-bind if dependencies change
+  }, [transcript, prompt, selectedFile, isLoading]);
 
 
   const fetchHistory = async () => {
@@ -61,6 +63,45 @@ function App() {
       setIsHistoryLoading(false);
     }
   };
+
+  // --- NEW: Prompt Management Functions ---
+  const fetchPrompts = async () => {
+    try {
+      const response = await api.get('/api/prompts');
+      setPrompts(response.data);
+      // Set the initial prompt to the first default prompt if it's not already set
+      if (!prompt && response.data.length > 0) {
+        const defaultPrompt = response.data.find(p => !p._user);
+        if (defaultPrompt) {
+          setPrompt(defaultPrompt.promptText);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to fetch prompts:', error);
+      toast.error('Failed to fetch prompts.');
+    }
+  };
+
+  const handleSavePrompt = async (title, promptText) => {
+    try {
+      await api.post('/api/prompts', { title, promptText });
+      await fetchPrompts(); // Refetch to update the list
+      toast.success('Prompt template saved!');
+    } catch (error) {
+      toast.error('Failed to save prompt.');
+    }
+  };
+
+  const handleDeletePrompt = async (promptId) => {
+    try {
+      await api.delete(`/api/prompts/${promptId}`);
+      await fetchPrompts(); // Refetch to update the list
+      toast.success('Prompt template deleted!');
+    } catch (error) {
+      toast.error('Failed to delete prompt.');
+    }
+  };
+
 
   const handleFileChange = (event) => {
     setSelectedFile(event.target.files[0]);
@@ -147,9 +188,7 @@ function App() {
     }
   };
 
-  // --- NEW: Rename Summary Function ---
   const handleRenameSummary = async (summaryId, newTitle) => {
-    // Optimistically update the UI first for a faster feel
     const originalSummaries = [...summariesHistory];
     const updatedSummaries = summariesHistory.map(s => 
       s._id === summaryId ? { ...s, title: newTitle } : s
@@ -160,7 +199,6 @@ function App() {
       await api.patch(`/api/summaries/${summaryId}`, { title: newTitle });
       toast.success('Summary renamed!');
     } catch (error) {
-      // If the API call fails, revert the change and show an error
       setSummariesHistory(originalSummaries);
       toast.error('Failed to rename summary.');
     }
@@ -189,6 +227,9 @@ function App() {
             clearFile={clearFile}
             handleGenerateSummary={handleGenerateSummary}
             handleClear={handleClear}
+            prompts={prompts}
+            handleSavePrompt={handleSavePrompt}
+            handleDeletePrompt={handleDeletePrompt}
           />
           <ResultsPanel
             user={user}
@@ -197,11 +238,11 @@ function App() {
             isHistoryLoading={isHistoryLoading}
             showHistory={showHistory} setShowHistory={setShowHistory}
             recipient={recipient} setRecipient={setRecipient}
-            searchTerm={searchTerm} setSearchTerm={setSearchTerm} // Pass search state
+            searchTerm={searchTerm} setSearchTerm={setSearchTerm}
             handleSelectSummaryFromHistory={handleSelectSummaryFromHistory}
             handleCopyToClipboard={handleCopyToClipboard}
             handleShareEmail={handleShareEmail}
-            handleRenameSummary={handleRenameSummary} // Pass rename function
+            handleRenameSummary={handleRenameSummary}
           />
         </motion.div>
       </div>
