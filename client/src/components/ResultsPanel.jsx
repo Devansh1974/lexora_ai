@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Link, Send, Copy } from 'lucide-react';
+import { Link, Send, Copy, ChevronDown, FileText, FileCode, FileType } from 'lucide-react';
+import { Menu, Transition } from '@headlessui/react';
 import ReactMarkdown from 'react-markdown';
 import History from './History';
 import { toast } from 'react-hot-toast';
@@ -9,18 +10,17 @@ function ResultsPanel({
   user,
   summary,
   summariesHistory,
-  isHistoryLoading, // New prop
+  isHistoryLoading,
   showHistory, setShowHistory,
   recipient, setRecipient,
-  searchTerm, setSearchTerm, // New props
+  searchTerm, setSearchTerm,
   handleSelectSummaryFromHistory,
   handleCopyToClipboard,
   handleShareEmail,
-  handleRenameSummary // New prop
+  handleRenameSummary,
+  handleExport, // New prop for exporting
 }) {
 
-  // The status message is now handled by react-hot-toast in App.jsx,
-  // so we can simplify this component.
   const handleCopyText = () => {
     if (!summary || !summary.summaryText) return;
     navigator.clipboard.writeText(summary.summaryText).then(() => {
@@ -52,9 +52,9 @@ function ResultsPanel({
             handleRenameSummary={handleRenameSummary}
           />
         ) : summary ? (
-          <motion.div className="space-y-6" initial={{opacity: 0}} animate={{opacity: 1}}>
+          <motion.div className="space-y-4" initial={{opacity: 0}} animate={{opacity: 1}}>
             <div className="relative group">
-              <div className="prose prose-slate max-w-none p-4 bg-slate-50/70 rounded-lg border border-slate-200 h-96 overflow-y-auto">
+              <div id="summary-content" className="prose prose-slate max-w-none p-4 bg-slate-50/70 rounded-lg border border-slate-200 h-96 overflow-y-auto">
                 <ReactMarkdown>{summary.summaryText}</ReactMarkdown>
               </div>
               <motion.button
@@ -67,9 +67,56 @@ function ResultsPanel({
                 <Copy className="h-4 w-4" />
               </motion.button>
             </div>
-            <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={handleCopyToClipboard} className="w-full flex items-center justify-center bg-indigo-600 text-white font-bold py-3 px-4 rounded-md hover:bg-indigo-700 transition-colors shadow-md">
-              <Link className="h-5 w-5 mr-2" /> Copy Shareable Link
-            </motion.button>
+            
+            {/* --- NEW: Action Buttons Group --- */}
+            <div className="grid grid-cols-2 gap-2">
+                <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={handleCopyToClipboard} className="w-full flex items-center justify-center bg-indigo-600 text-white font-bold py-3 px-4 rounded-md hover:bg-indigo-700 transition-colors shadow-md">
+                    <Link className="h-5 w-5 mr-2" /> Copy Link
+                </motion.button>
+
+                {/* --- NEW: Export Dropdown --- */}
+                <Menu as="div" className="relative">
+                    <Menu.Button as={motion.button} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="w-full flex items-center justify-center bg-slate-700 text-white font-bold py-3 px-4 rounded-md hover:bg-slate-800 transition-colors shadow-md">
+                        <ChevronDown className="h-5 w-5 mr-2" /> Export As
+                    </Menu.Button>
+                    <Transition
+                        as={Fragment}
+                        enter="transition ease-out duration-100"
+                        enterFrom="transform opacity-0 scale-95"
+                        enterTo="transform opacity-100 scale-100"
+                        leave="transition ease-in duration-75"
+                        leaveFrom="transform opacity-100 scale-100"
+                        leaveTo="transform opacity-0 scale-95"
+                    >
+                        <Menu.Items className="absolute right-0 bottom-full mb-2 w-full origin-bottom-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                        <div className="py-1">
+                            <Menu.Item>
+                            {({ active }) => (
+                                <button onClick={() => handleExport('pdf')} className={`${active ? 'bg-gray-100' : ''} group flex w-full items-center px-4 py-2 text-sm text-gray-700`}>
+                                    <FileType className="mr-3 h-5 w-5 text-red-500"/> PDF Document
+                                </button>
+                            )}
+                            </Menu.Item>
+                            <Menu.Item>
+                            {({ active }) => (
+                                <button onClick={() => handleExport('md')} className={`${active ? 'bg-gray-100' : ''} group flex w-full items-center px-4 py-2 text-sm text-gray-700`}>
+                                    <FileCode className="mr-3 h-5 w-5 text-blue-500"/> Markdown File
+                                </button>
+                            )}
+                            </Menu.Item>
+                            <Menu.Item>
+                            {({ active }) => (
+                                <button onClick={() => handleExport('txt')} className={`${active ? 'bg-gray-100' : ''} group flex w-full items-center px-4 py-2 text-sm text-gray-700`}>
+                                    <FileText className="mr-3 h-5 w-5 text-gray-500"/> Text File
+                                </button>
+                            )}
+                            </Menu.Item>
+                        </div>
+                        </Menu.Items>
+                    </Transition>
+                </Menu>
+            </div>
+
             <div className="space-y-4 pt-4 border-t border-slate-200">
               <h3 className="text-lg font-semibold text-slate-700">Share via Email</h3>
               <div className="flex flex-col sm:flex-row sm:space-x-2 space-y-2 sm:space-y-0">

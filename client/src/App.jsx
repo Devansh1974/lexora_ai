@@ -3,6 +3,8 @@ import api from './api';
 import { useAuth } from './AuthContext';
 import { motion } from 'framer-motion';
 import { Toaster, toast } from 'react-hot-toast';
+import jsPDF from 'jspdf'; // For PDF export
+import html2canvas from 'html2canvas'; // For PDF export
 
 // Import the new components
 import Login from './components/Login';
@@ -12,7 +14,7 @@ import ResultsPanel from './components/ResultsPanel';
 function App() {
   const { user } = useAuth();
   const [transcript, setTranscript] = useState('');
-  const [prompt, setPrompt] = useState(''); // Will be set by fetched prompts
+  const [prompt, setPrompt] = useState('');
   const [summary, setSummary] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isHistoryLoading, setIsHistoryLoading] = useState(true);
@@ -21,14 +23,14 @@ function App() {
   const [showHistory, setShowHistory] = useState(true);
   const [recipient, setRecipient] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
-  const [prompts, setPrompts] = useState([]); // New state for all prompts
+  const [prompts, setPrompts] = useState([]);
 
   // --- Logic Functions ---
 
   useEffect(() => {
     if (user) {
       fetchHistory();
-      fetchPrompts(); // Fetch prompts when user logs in
+      fetchPrompts();
     } else {
       setSummariesHistory([]);
       setPrompts([]);
@@ -64,12 +66,10 @@ function App() {
     }
   };
 
-  // --- NEW: Prompt Management Functions ---
   const fetchPrompts = async () => {
     try {
       const response = await api.get('/api/prompts');
       setPrompts(response.data);
-      // Set the initial prompt to the first default prompt if it's not already set
       if (!prompt && response.data.length > 0) {
         const defaultPrompt = response.data.find(p => !p._user);
         if (defaultPrompt) {
@@ -85,7 +85,7 @@ function App() {
   const handleSavePrompt = async (title, promptText) => {
     try {
       await api.post('/api/prompts', { title, promptText });
-      await fetchPrompts(); // Refetch to update the list
+      await fetchPrompts();
       toast.success('Prompt template saved!');
     } catch (error) {
       toast.error('Failed to save prompt.');
@@ -95,13 +95,12 @@ function App() {
   const handleDeletePrompt = async (promptId) => {
     try {
       await api.delete(`/api/prompts/${promptId}`);
-      await fetchPrompts(); // Refetch to update the list
+      await fetchPrompts();
       toast.success('Prompt template deleted!');
     } catch (error) {
       toast.error('Failed to delete prompt.');
     }
   };
-
 
   const handleFileChange = (event) => {
     setSelectedFile(event.target.files[0]);
@@ -204,6 +203,50 @@ function App() {
     }
   };
 
+  const handleExport = (format) => {
+    if (!summary) {
+      toast.error('No summary to export.');
+      return;
+    }
+
+    const title = summary.title.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+    const content = summary.summaryText;
+
+    if (format === 'pdf') {
+      const input = document.getElementById('summary-content');
+      if (input) {
+        toast.loading('Generating PDF...');
+        html2canvas(input, { scale: 2 }).then(canvas => {
+          const imgData = canvas.toDataURL('image/png');
+          const pdf = new jsPDF('p', 'mm', 'a4');
+          const pdfWidth = pdf.internal.pageSize.getWidth();
+          const canvasWidth = canvas.width;
+          const canvasHeight = canvas.height;
+          const ratio = canvasWidth / canvasHeight;
+          const imgWidth = pdfWidth - 20;
+          const imgHeight = imgWidth / ratio;
+          
+          pdf.addImage(imgData, 'PNG', 10, 10, imgWidth, imgHeight);
+          pdf.save(`${title}.pdf`);
+          toast.dismiss();
+          toast.success('PDF downloaded!');
+        });
+      }
+    } else {
+      const mimeType = format === 'md' ? 'text/markdown' : 'text/plain';
+      const fileExtension = format === 'md' ? 'md' : 'txt';
+      
+      const blob = new Blob([content], { type: mimeType });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `${title}.${fileExtension}`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      toast.success(`.${fileExtension} file downloaded!`);
+    }
+  };
+
   if (!user) {
     return <Login />;
   }
@@ -243,6 +286,7 @@ function App() {
             handleCopyToClipboard={handleCopyToClipboard}
             handleShareEmail={handleShareEmail}
             handleRenameSummary={handleRenameSummary}
+            handleExport={handleExport}
           />
         </motion.div>
       </div>
