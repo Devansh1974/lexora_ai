@@ -6,7 +6,8 @@ function Footer() {
 
   return (
     <footer className="bg-slate-900/50 backdrop-blur-lg border-t border-slate-700/50">
-      <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+      {/* --- CORRECTED: Removed max-w-7xl for full-width layout --- */}
+      <div className="w-full mx-auto py-8 px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
           
           {/* Left Section: Logo and Tagline */}

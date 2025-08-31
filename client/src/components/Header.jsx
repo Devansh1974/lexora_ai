@@ -36,21 +36,22 @@ function Header() {
             leaveFrom="transform opacity-100 scale-100"
             leaveTo="transform opacity-0 scale-95"
           >
-            <Menu.Items className="absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+            {/* --- CORRECTED: Dropdown menu styled for dark theme --- */}
+            <Menu.Items className="absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-md bg-slate-800 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none border border-slate-700">
               <div className="py-1">
-                <div className="px-4 py-3 border-b border-slate-200">
-                  <p className="text-sm font-medium text-slate-900">{user.displayName}</p>
-                  <p className="truncate text-sm text-slate-500">{user.email}</p>
+                <div className="px-4 py-3 border-b border-slate-700">
+                  <p className="text-sm font-medium text-slate-100">{user.displayName}</p>
+                  <p className="truncate text-sm text-slate-400">{user.email}</p>
                 </div>
                 <Menu.Item>
                   {({ active }) => (
                     <a
                       href="http://localhost:5001/api/logout"
                       className={`${
-                        active ? 'bg-slate-100 text-slate-900' : 'text-slate-700'
-                      } group flex w-full items-center px-4 py-2 text-sm`}
+                        active ? 'bg-slate-700 text-slate-100' : 'text-slate-300'
+                      } group flex w-full items-center px-4 py-2 text-sm transition-colors`}
                     >
-                      <LogOut className="mr-3 h-5 w-5 text-slate-400 group-hover:text-slate-500" aria-hidden="true" />
+                      <LogOut className="mr-3 h-5 w-5 text-slate-400 group-hover:text-slate-300" aria-hidden="true" />
                       Logout
                     </a>
                   )}
@@ -72,12 +73,11 @@ function Header() {
 
   return (
     <header className="bg-slate-900/50 backdrop-blur-lg shadow-sm border-b border-slate-700/50 sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* --- CORRECTED: Removed max-w-7xl for full-width layout --- */}
+      <div className="w-full mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center py-3">
           <div className="flex items-center space-x-3">
-            <svg className="h-8 w-8 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            </svg>
+            {/* --- CORRECTED: Removed old logo SVG --- */}
             <span className="text-2xl font-bold tracking-tight bg-gradient-to-r from-blue-400 to-purple-400 text-transparent bg-clip-text">
               LexoraAI
             </span>
