@@ -46,7 +46,6 @@ function Summarizer({
   };
 
   return (
-    // --- CORRECTED: Removed fixed-width classes and added flex properties ---
     <div className="bg-slate-800/50 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl p-8 space-y-8 flex flex-col h-full">
       {/* Header Section */}
       <div className="flex justify-between items-center">
@@ -82,12 +81,13 @@ function Summarizer({
           )}
         </div>
         <div className="flex items-center text-slate-500"><hr className="flex-grow border-slate-700"/><span className="px-2 text-sm">OR</span><hr className="flex-grow border-slate-700"/></div>
+        {/* --- CORRECTED: Custom focus ring --- */}
         <textarea
           rows="8"
           placeholder="Paste your meeting notes here..."
           value={transcript}
           onChange={(e) => { setTranscript(e.target.value); if (selectedFile) clearFile(); }}
-          className="w-full p-3 border border-slate-600 rounded-md focus:ring-2 focus:ring-indigo-500 transition bg-slate-700/50 text-slate-200 placeholder-slate-500"
+          className="w-full p-3 border border-slate-600 rounded-md focus:ring-2 focus:ring-indigo-500 transition bg-slate-700/50 text-slate-200 placeholder-slate-500 focus:border-indigo-500"
           disabled={!!selectedFile}
         />
       </motion.div>
@@ -121,11 +121,12 @@ function Summarizer({
         )}
 
         <div className="relative">
+          {/* --- CORRECTED: Custom focus ring --- */}
           <textarea
             rows="3"
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
-            className="w-full p-3 pr-10 border border-slate-600 rounded-md focus:ring-2 focus:ring-indigo-500 transition bg-slate-700/50 text-slate-200 placeholder-slate-500"
+            className="w-full p-3 pr-10 border border-slate-600 rounded-md focus:ring-2 focus:ring-indigo-500 transition bg-slate-700/50 text-slate-200 placeholder-slate-500 focus:border-indigo-500"
             placeholder="Or write your own custom instruction..."
           />
           <motion.button 
@@ -180,12 +181,13 @@ function Summarizer({
                 </button>
               </div>
               <p className="text-sm text-slate-400 mt-1">Give your prompt a short, memorable title.</p>
+              {/* --- CORRECTED: Custom focus ring --- */}
               <input 
                 type="text"
                 value={newPromptTitle}
                 onChange={(e) => setNewPromptTitle(e.target.value)}
                 placeholder="e.g., Weekly Project Update"
-                className="w-full mt-4 p-2 border border-slate-600 rounded-md focus:ring-2 focus:ring-indigo-500 bg-slate-700 text-slate-100"
+                className="w-full mt-4 p-2 border border-slate-600 rounded-md focus:ring-2 focus:ring-indigo-500 bg-slate-700 text-slate-100 focus:border-indigo-500"
                 onKeyDown={(e) => e.key === 'Enter' && onConfirmSave()}
               />
               <div className="mt-4 flex justify-end space-x-2">
@@ -201,3 +203,4 @@ function Summarizer({
 }
 
 export default Summarizer;
+

@@ -86,12 +86,13 @@ function History({
     <div className="flex flex-col h-full">
       <div className="relative mb-4">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-500" />
+        {/* --- CORRECTED: Custom focus ring --- */}
         <input
           type="text"
           placeholder="Search history..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full pl-10 pr-4 py-2 border border-slate-600 rounded-lg bg-slate-700/50 text-slate-200 placeholder-slate-500 focus:ring-2 focus:ring-indigo-500"
+          className="w-full pl-10 pr-4 py-2 border border-slate-600 rounded-lg bg-slate-700/50 text-slate-200 placeholder-slate-500 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
         />
       </div>
 
