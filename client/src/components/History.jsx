@@ -83,8 +83,9 @@ function History({
   };
 
   return (
+    // --- CORRECTED: Main container is a flex column to enable scrolling ---
     <div className="flex flex-col h-full">
-      <div className="relative mb-4">
+      <div className="relative mb-4 flex-shrink-0">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-500" />
         <input
           type="text"
@@ -95,8 +96,9 @@ function History({
         />
       </div>
 
+      {/* --- CORRECTED: This motion.div is now the scrollable container --- */}
       <motion.div
-        className="space-y-3 overflow-y-auto flex-grow pr-2"
+        className="space-y-3 overflow-y-auto flex-grow pr-2 -mr-2" // Added margin trick to hide scrollbar visually
         variants={containerVariants}
         initial="hidden"
         animate="visible"

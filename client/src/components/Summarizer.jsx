@@ -46,104 +46,108 @@ function Summarizer({
   };
 
   return (
-    // --- CORRECTED: Removed fixed-width classes and added flex properties ---
-    <div className="bg-slate-800/50 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl p-8 space-y-8 flex flex-col h-full">
+    <div className="bg-slate-800/50 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl p-8 flex flex-col h-full">
       {/* Header Section */}
-      <div className="flex justify-between items-center">
-        <div className="text-left">
-          <h1 className="text-4xl font-bold text-white">Meeting Summarizer</h1>
-          <p className="text-slate-400 mt-2">Upload or paste your meeting notes to get a quick summary.</p>
-        </div>
-        <motion.button
-          onClick={handleClear}
-          className="flex items-center text-sm font-semibold text-slate-300 hover:text-white transition"
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-        >
-          <RotateCcw className="h-4 w-4 mr-2" />
-          New Summary
-        </motion.button>
-      </div>
-
-      {/* Transcript Input Section */}
-      <motion.div className="space-y-4" variants={sectionVariants} initial="hidden" animate="visible">
-        <h2 className="text-xl font-semibold text-slate-200">1. Provide Transcript</h2>
-        <div className="p-6 border-2 border-dashed border-slate-600 rounded-lg text-center bg-slate-900/50">
-          <label htmlFor="file-input" className="cursor-pointer inline-flex items-center px-4 py-2 bg-slate-700 text-slate-100 rounded-md font-semibold hover:bg-slate-600 transition border border-slate-500 shadow-sm">
-            <UploadCloud className="h-5 w-5 mr-2" />
-            Choose a .txt or .docx file
-          </label>
-          <input id="file-input" type="file" accept=".txt,.docx" className="hidden" onChange={handleFileChange} />
-          {selectedFile && (
-            <div className="mt-4 text-sm text-slate-400 flex items-center justify-center">
-              <span>{selectedFile.name}</span>
-              <button onClick={clearFile} className="ml-2 text-red-500 hover:text-red-400 font-bold">&times;</button>
-            </div>
-          )}
-        </div>
-        <div className="flex items-center text-slate-500"><hr className="flex-grow border-slate-700"/><span className="px-2 text-sm">OR</span><hr className="flex-grow border-slate-700"/></div>
-        <textarea
-          rows="8"
-          placeholder="Paste your meeting notes here..."
-          value={transcript}
-          onChange={(e) => { setTranscript(e.target.value); if (selectedFile) clearFile(); }}
-          className="w-full p-3 border border-slate-600 rounded-md focus:ring-2 focus:ring-indigo-500 transition bg-slate-700/50 text-slate-200 placeholder-slate-500"
-          disabled={!!selectedFile}
-        />
-      </motion.div>
-
-      {/* Instruction Section */}
-      <motion.div className="space-y-4" variants={sectionVariants} initial="hidden" animate="visible" transition={{ delay: 0.2 }}>
-        <h2 className="text-xl font-semibold text-slate-200">2. Choose Instruction</h2>
-        
-        <div className="flex flex-wrap gap-2">
-          {defaultPrompts.map((p) => (
-            <button key={p._id} onClick={() => setPrompt(p.promptText)} className={`px-4 py-1.5 text-sm rounded-full transition ${prompt === p.promptText ? 'bg-blue-600 text-white shadow-md' : 'bg-slate-700 text-slate-200 hover:bg-slate-600'}`}>
-              {p.title}
-            </button>
-          ))}
-        </div>
-        
-        {customPrompts.length > 0 && (
-          <div className="flex flex-wrap gap-2 pt-2 border-t border-slate-700">
-             <h3 className="w-full text-sm font-semibold text-slate-400 mb-1">Your Templates</h3>
-            {customPrompts.map((p) => (
-              <div key={p._id} className="group relative">
-                <button onClick={() => setPrompt(p.promptText)} className={`pr-8 pl-4 py-1.5 text-sm rounded-full transition ${prompt === p.promptText ? 'bg-purple-600 text-white shadow-md' : 'bg-slate-700 text-slate-200 hover:bg-slate-600'}`}>
-                  {p.title}
-                </button>
-                <button onClick={() => handleDeletePrompt(p._id)} className="absolute right-1 top-1/2 -translate-y-1/2 p-1 text-slate-500 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <Trash2 className="h-3 w-3" />
-                </button>
-              </div>
-            ))}
+      <div className="flex-shrink-0">
+        <div className="flex justify-between items-center">
+          <div className="text-left">
+            <h1 className="text-4xl font-bold text-white">Meeting Summarizer</h1>
+            <p className="text-slate-400 mt-2">Upload or paste your meeting notes to get a quick summary.</p>
           </div>
-        )}
-
-        <div className="relative">
-          <textarea
-            rows="3"
-            value={prompt}
-            onChange={(e) => setPrompt(e.target.value)}
-            className="w-full p-3 pr-10 border border-slate-600 rounded-md focus:ring-2 focus:ring-indigo-500 transition bg-slate-700/50 text-slate-200 placeholder-slate-500"
-            placeholder="Or write your own custom instruction..."
-          />
-          <motion.button 
-            onClick={onSaveClick} 
-            className="absolute top-2 right-2 p-1.5 text-slate-400 hover:text-blue-400"
-            whileHover={{ scale: 1.1 }}
-            title="Save as template"
+          <motion.button
+            onClick={handleClear}
+            className="flex items-center text-sm font-semibold text-slate-300 hover:text-white transition"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
           >
-            <Save className="h-5 w-5" />
+            <RotateCcw className="h-4 w-4 mr-2" />
+            New Summary
           </motion.button>
         </div>
-      </motion.div>
+      </div>
+
+      {/* --- CORRECTED: Main content area is now flexible and scrollable --- */}
+      <div className="flex-grow overflow-y-auto space-y-8 pr-4 -mr-4 mt-8">
+        {/* Transcript Input Section */}
+        <motion.div className="space-y-4" variants={sectionVariants} initial="hidden" animate="visible">
+          <h2 className="text-xl font-semibold text-slate-200">1. Provide Transcript</h2>
+          <div className="p-6 border-2 border-dashed border-slate-600 rounded-lg text-center bg-slate-900/50">
+            <label htmlFor="file-input" className="cursor-pointer inline-flex items-center px-4 py-2 bg-slate-700 text-slate-100 rounded-md font-semibold hover:bg-slate-600 transition border border-slate-500 shadow-sm">
+              <UploadCloud className="h-5 w-5 mr-2" />
+              Choose a .txt or .docx file
+            </label>
+            <input id="file-input" type="file" accept=".txt,.docx" className="hidden" onChange={handleFileChange} />
+            {selectedFile && (
+              <div className="mt-4 text-sm text-slate-400 flex items-center justify-center">
+                <span>{selectedFile.name}</span>
+                <button onClick={clearFile} className="ml-2 text-red-500 hover:text-red-400 font-bold">&times;</button>
+              </div>
+            )}
+          </div>
+          <div className="flex items-center text-slate-500"><hr className="flex-grow border-slate-700"/><span className="px-2 text-sm">OR</span><hr className="flex-grow border-slate-700"/></div>
+          <textarea
+            rows="8"
+            placeholder="Paste your meeting notes here..."
+            value={transcript}
+            onChange={(e) => { setTranscript(e.target.value); if (selectedFile) clearFile(); }}
+            className="w-full p-3 border border-slate-600 rounded-md focus:ring-2 focus:ring-indigo-500 transition bg-slate-700/50 text-slate-200 placeholder-slate-500 focus:border-indigo-500"
+            disabled={!!selectedFile}
+          />
+        </motion.div>
+
+        {/* Instruction Section */}
+        <motion.div className="space-y-4" variants={sectionVariants} initial="hidden" animate="visible" transition={{ delay: 0.2 }}>
+          <h2 className="text-xl font-semibold text-slate-200">2. Choose Instruction</h2>
+          
+          <div className="flex flex-wrap gap-2">
+            {defaultPrompts.map((p) => (
+              <button key={p._id} onClick={() => setPrompt(p.promptText)} className={`px-4 py-1.5 text-sm rounded-full transition ${prompt === p.promptText ? 'bg-blue-600 text-white shadow-md' : 'bg-slate-700 text-slate-200 hover:bg-slate-600'}`}>
+                {p.title}
+              </button>
+            ))}
+          </div>
+          
+          {customPrompts.length > 0 && (
+            <div className="flex flex-wrap gap-2 pt-2 border-t border-slate-700">
+               <h3 className="w-full text-sm font-semibold text-slate-400 mb-1">Your Templates</h3>
+              {customPrompts.map((p) => (
+                <div key={p._id} className="group relative">
+                  <button onClick={() => setPrompt(p.promptText)} className={`pr-8 pl-4 py-1.5 text-sm rounded-full transition ${prompt === p.promptText ? 'bg-purple-600 text-white shadow-md' : 'bg-slate-700 text-slate-200 hover:bg-slate-600'}`}>
+                    {p.title}
+                  </button>
+                  <button onClick={() => handleDeletePrompt(p._id)} className="absolute right-1 top-1/2 -translate-y-1/2 p-1 text-slate-500 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Trash2 className="h-3 w-3" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <div className="relative">
+            <textarea
+              rows="3"
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+              className="w-full p-3 pr-10 border border-slate-600 rounded-md focus:ring-2 focus:ring-indigo-500 transition bg-slate-700/50 text-slate-200 placeholder-slate-500 focus:border-indigo-500"
+              placeholder="Or write your own custom instruction..."
+            />
+            <motion.button 
+              onClick={onSaveClick} 
+              className="absolute top-2 right-2 p-1.5 text-slate-400 hover:text-blue-400"
+              whileHover={{ scale: 1.1 }}
+              title="Save as template"
+            >
+              <Save className="h-5 w-5" />
+            </motion.button>
+          </div>
+        </motion.div>
+      </div>
 
       {/* Generate Button */}
       <motion.button
         onClick={handleGenerateSummary}
         disabled={isLoading}
-        className="w-full mt-auto bg-gradient-to-r from-blue-500 to-purple-500 text-white font-bold py-4 px-4 rounded-lg hover:opacity-90 disabled:opacity-50 transition-opacity text-lg flex items-center justify-center shadow-lg shadow-blue-500/20"
+        className="w-full mt-auto flex-shrink-0 bg-gradient-to-r from-blue-500 to-purple-500 text-white font-bold py-4 px-4 rounded-lg hover:opacity-90 disabled:opacity-50 transition-opacity text-lg flex items-center justify-center shadow-lg shadow-blue-500/20"
         whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.98 }}
       >
@@ -185,7 +189,7 @@ function Summarizer({
                 value={newPromptTitle}
                 onChange={(e) => setNewPromptTitle(e.target.value)}
                 placeholder="e.g., Weekly Project Update"
-                className="w-full mt-4 p-2 border border-slate-600 rounded-md focus:ring-2 focus:ring-indigo-500 bg-slate-700 text-slate-100"
+                className="w-full mt-4 p-2 border border-slate-600 rounded-md focus:ring-2 focus:ring-indigo-500 bg-slate-700 text-slate-100 focus:border-indigo-500"
                 onKeyDown={(e) => e.key === 'Enter' && onConfirmSave()}
               />
               <div className="mt-4 flex justify-end space-x-2">
@@ -201,3 +205,4 @@ function Summarizer({
 }
 
 export default Summarizer;
+
