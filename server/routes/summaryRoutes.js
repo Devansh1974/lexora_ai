@@ -13,17 +13,27 @@ const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 module.exports = app => {
   // GET all summaries for the logged-in user
   app.get('/api/summaries', requireLogin, async (req, res) => {
-    const summaries = await Summary.find({ _user: req.user.id }).sort({ createdAt: -1 });
-    res.send(summaries);
+    try {
+      const summaries = await Summary.find({ _user: req.user.id }).sort({ createdAt: -1 });
+      res.send(summaries);
+    } catch (error) {
+      console.error('Error fetching summaries:', error);
+      res.status(500).send({ error: 'Failed to fetch summaries.' });
+    }
   });
 
   // GET a single public summary by its shareId
   app.get('/api/summaries/:shareId', async (req, res) => {
-    const summary = await Summary.findOne({ shareId: req.params.shareId });
-    if (!summary) {
-      return res.status(404).send({ error: 'Summary not found.' });
+    try {
+      const summary = await Summary.findOne({ shareId: req.params.shareId });
+      if (!summary) {
+        return res.status(404).send({ error: 'Summary not found.' });
+      }
+      res.send(summary);
+    } catch (error) {
+      console.error('Error fetching shared summary:', error);
+      res.status(500).send({ error: 'Failed to fetch summary.' });
     }
-    res.send(summary);
   });
 
   // POST to generate a new summary
@@ -50,7 +60,7 @@ module.exports = app => {
       let generatedTitle = 'Untitled Summary';
       try {
         const titleResponse = await groq.chat.completions.create({
-          model: 'llama3-8b-8192',
+          model: 'mixtral-8x7b-32768', // LATEST STABLE MODEL
           messages: [
             { role: 'system', content: 'You are an expert at creating short, descriptive titles.' },
             { role: 'user', content: `Analyze the following text and create a concise title for it, no more than 7 words. Text: "${originalContent.substring(0, 1000)}"` },
@@ -62,7 +72,7 @@ module.exports = app => {
       }
       
       const summaryResponse = await groq.chat.completions.create({
-        model: 'llama3-8b-8192',
+        model: 'mixtral-8x7b-32768', // LATEST STABLE MODEL
         messages: [
           { role: 'system', content: 'You are a helpful assistant that summarizes meeting transcripts.' },
           { role: 'user', content: `Instruction: "${prompt}". Transcript: "${originalContent}"` },
@@ -113,7 +123,7 @@ module.exports = app => {
     }
   });
 
-  // --- NEW: POST route to refine an existing summary ---
+  // POST route to refine an existing summary
   app.post('/api/summaries/refine', requireLogin, async (req, res) => {
     const { currentSummary, refinementPrompt } = req.body;
     if (!currentSummary || !refinementPrompt) {
@@ -122,7 +132,7 @@ module.exports = app => {
 
     try {
       const response = await groq.chat.completions.create({
-        model: 'llama3-8b-8192',
+        model: 'mixtral-8x7b-32768', // LATEST STABLE MODEL
         messages: [
           { 
             role: 'system', 
@@ -144,7 +154,7 @@ module.exports = app => {
     }
   });
 
-  // --- NEW: PATCH route to save the final refined summary text ---
+  // PATCH route to save the final refined summary text
   app.patch('/api/summaries/:id/text', requireLogin, async (req, res) => {
     const { summaryText } = req.body;
     const { id } = req.params;
@@ -214,3 +224,4 @@ module.exports = app => {
     }
   });
 };
+
