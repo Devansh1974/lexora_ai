@@ -1,27 +1,26 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useState, useContext, useEffect } from 'react';
 import api from '../api';
 import { useAuth } from '../AuthContext';
 import { toast } from 'react-hot-toast';
 
-// 1. Create the Context
 const PromptContext = createContext();
 
-// 2. Create the Provider component
-export function PromptProvider({ children }) {
+// EXPORT THE CUSTOM HOOK
+export const usePrompts = () => {
+  return useContext(PromptContext);
+};
+
+export const PromptProvider = ({ children }) => {
   const { user } = useAuth();
-
-  // --- All State related to prompts now lives here ---
   const [prompts, setPrompts] = useState([]);
-  const [prompt, setPrompt] = useState(''); // The currently active prompt text
-
-  // --- All Functions related to prompts now live here ---
+  const [prompt, setPrompt] = useState('');
 
   useEffect(() => {
     if (user) {
       fetchPrompts();
     } else {
       setPrompts([]);
-      setPrompt('');
+      setPrompt(''); // Clear prompt on logout
     }
   }, [user]);
 
@@ -62,7 +61,6 @@ export function PromptProvider({ children }) {
     }
   };
 
-  // The value that will be available to all children
   const value = {
     prompts,
     prompt,
@@ -77,9 +75,5 @@ export function PromptProvider({ children }) {
       {children}
     </PromptContext.Provider>
   );
-}
+};
 
-// 3. Create a custom hook for easy access to the context
-export function usePrompts() {
-  return useContext(PromptContext);
-}

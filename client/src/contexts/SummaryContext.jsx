@@ -1,36 +1,36 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useState, useContext, useEffect } from 'react';
 import api from '../api';
 import { useAuth } from '../AuthContext';
 import { toast } from 'react-hot-toast';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
-// 1. Create the Context
 const SummaryContext = createContext();
 
-// 2. Create the Provider component
-export function SummaryProvider({ children }) {
-  const { user } = useAuth();
+// EXPORT THE CUSTOM HOOK
+export const useSummaries = () => {
+  return useContext(SummaryContext);
+};
 
-  // --- All State related to summaries now lives here ---
+export const SummaryProvider = ({ children }) => {
+  const { user } = useAuth();
+  
+  const [transcript, setTranscript] = useState('');
   const [summary, setSummary] = useState(null);
-  const [summariesHistory, setSummariesHistory] = useState([]);
+  const [selectedFile, setSelectedFile] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isHistoryLoading, setIsHistoryLoading] = useState(true);
   const [isRefining, setIsRefining] = useState(false);
+  const [summariesHistory, setSummariesHistory] = useState([]);
   const [showHistory, setShowHistory] = useState(true);
   const [recipient, setRecipient] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
-
-  // --- All Functions related to summaries now live here ---
 
   useEffect(() => {
     if (user) {
       fetchHistory();
     } else {
       setSummariesHistory([]);
-      setSummary(null);
-      setShowHistory(true);
     }
   }, [user]);
 
@@ -46,9 +46,43 @@ export function SummaryProvider({ children }) {
       setIsHistoryLoading(false);
     }
   };
+  
+  const handleFileChange = (event) => {
+    setSelectedFile(event.target.files[0]);
+    setTranscript('');
+  };
 
-  const handleGenerateSummary = async (formData) => {
+  const clearFile = () => {
+    setSelectedFile(null);
+    if (document.getElementById('file-input')) {
+      document.getElementById('file-input').value = null;
+    }
+  };
+
+  const handleClear = () => {
+    setTranscript('');
+    setSelectedFile(null);
+    setSummary(null);
+    setShowHistory(true);
+    if (document.getElementById('file-input')) {
+      document.getElementById('file-input').value = null;
+    }
+  };
+
+  const handleGenerateSummary = async (prompt) => {
+    if (!selectedFile && !transcript) {
+      toast.error('Please upload a transcript file or paste the text.');
+      return;
+    }
     setIsLoading(true);
+    const formData = new FormData();
+    formData.append('prompt', prompt);
+    if (selectedFile) {
+      formData.append('file', selectedFile);
+    } else {
+      formData.append('transcript', transcript);
+    }
+
     try {
       const response = await api.post('/api/summarize', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
@@ -66,12 +100,13 @@ export function SummaryProvider({ children }) {
   
   const handleSelectSummaryFromHistory = (selectedSummary) => {
     setSummary(selectedSummary);
+    setTranscript(selectedSummary.originalContent);
     setShowHistory(false);
   };
 
   const handleRenameSummary = async (summaryId, newTitle) => {
     const originalSummaries = [...summariesHistory];
-    const updatedSummaries = summariesHistory.map(s =>
+    const updatedSummaries = summariesHistory.map(s => 
       s._id === summaryId ? { ...s, title: newTitle } : s
     );
     setSummariesHistory(updatedSummaries);
@@ -100,7 +135,7 @@ export function SummaryProvider({ children }) {
       setIsRefining(false);
     }
   };
-
+  
   const handleSaveChanges = async (summaryId, newSummaryText) => {
     const toastId = toast.loading('Saving changes...');
     try {
@@ -112,7 +147,7 @@ export function SummaryProvider({ children }) {
       toast.error('Failed to save changes.', { id: toastId });
     }
   };
-
+  
   const handleCopyToClipboard = () => {
     if (!summary || !summary.shareId) return;
     const shareLink = `${window.location.origin}/summary/${summary.shareId}`;
@@ -149,60 +184,61 @@ export function SummaryProvider({ children }) {
     const content = currentSummaryText;
 
     if (format === 'pdf') {
-        const input = document.getElementById('summary-content-exportable');
-        if (input) {
-          toast.loading('Generating PDF...');
-          html2canvas(input, { 
-            scale: 2,
-            backgroundColor: null,
-            onclone: (document) => {
-              const content = document.getElementById('summary-content-exportable');
-              content.style.color = '#333';
-              content.style.background = '#fff';
-              content.style.padding = '20px';
-            }
-          }).then(canvas => {
-            const imgData = canvas.toDataURL('image/png');
-            const pdf = new jsPDF('p', 'mm', 'a4');
-            const pdfWidth = pdf.internal.pageSize.getWidth();
-            const canvasWidth = canvas.width;
-            const canvasHeight = canvas.height;
-            const ratio = canvasWidth / canvasHeight;
-            const imgWidth = pdfWidth;
-            const imgHeight = imgWidth / ratio;
-            
-            pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
-            pdf.save(`${title}.pdf`);
-            toast.dismiss();
-            toast.success('PDF downloaded!');
-          });
-        }
+      const input = document.getElementById('summary-content');
+      if (input) {
+        toast.loading('Generating PDF...');
+        html2canvas(input, { 
+          scale: 2,
+          backgroundColor: null,
+          onclone: (document) => {
+            document.getElementById('summary-content').style.color = '#000';
+          }
+        }).then(canvas => {
+          const imgData = canvas.toDataURL('image/png');
+          const pdf = new jsPDF('p', 'mm', 'a4');
+          const pdfWidth = pdf.internal.pageSize.getWidth();
+          const canvasWidth = canvas.width;
+          const canvasHeight = canvas.height;
+          const ratio = canvasWidth / canvasHeight;
+          const imgWidth = pdfWidth - 20;
+          const imgHeight = imgWidth / ratio;
+          
+          pdf.addImage(imgData, 'PNG', 10, 10, imgWidth, imgHeight);
+          pdf.save(`${title}.pdf`);
+          toast.dismiss();
+          toast.success('PDF downloaded!');
+        });
+      }
     } else {
-        const mimeType = format === 'md' ? 'text/markdown' : 'text/plain';
-        const fileExtension = format === 'md' ? 'md' : 'txt';
-        
-        const blob = new Blob([content], { type: mimeType });
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = `${title}.${fileExtension}`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        toast.success(`.${fileExtension} file downloaded!`);
+      const mimeType = format === 'md' ? 'text/markdown' : 'text/plain';
+      const fileExtension = format === 'md' ? 'md' : 'txt';
+      
+      const blob = new Blob([content], { type: mimeType });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `${title}.${fileExtension}`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      toast.success(`.${fileExtension} file downloaded!`);
     }
   };
 
-  // The value that will be available to all children
   const value = {
+    transcript, setTranscript,
     summary, setSummary,
-    summariesHistory, setSummariesHistory,
+    selectedFile, setSelectedFile,
     isLoading, setIsLoading,
-    isHistoryLoading,
-    isRefining,
+    isHistoryLoading, setIsHistoryLoading,
+    isRefining, setIsRefining,
+    summariesHistory, setSummariesHistory,
     showHistory, setShowHistory,
     recipient, setRecipient,
     searchTerm, setSearchTerm,
     fetchHistory,
+    handleFileChange,
+    clearFile,
+    handleClear,
     handleGenerateSummary,
     handleSelectSummaryFromHistory,
     handleRenameSummary,
@@ -218,9 +254,5 @@ export function SummaryProvider({ children }) {
       {children}
     </SummaryContext.Provider>
   );
-}
+};
 
-// 3. Create a custom hook for easy access to the context
-export function useSummary() {
-  return useContext(SummaryContext);
-}
