@@ -46,8 +46,9 @@ function Summarizer({
   };
 
   return (
+    // --- CORRECTED: Main container is a flex column to enable scrolling ---
     <div className="bg-slate-800/50 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl p-8 flex flex-col h-full">
-      {/* Header Section */}
+      {/* Header Section (Fixed Height) */}
       <div className="flex-shrink-0">
         <div className="flex justify-between items-center">
           <div className="text-left">
@@ -143,11 +144,11 @@ function Summarizer({
         </motion.div>
       </div>
 
-      {/* Generate Button */}
+      {/* Generate Button (Fixed Height) */}
       <motion.button
         onClick={handleGenerateSummary}
         disabled={isLoading}
-        className="w-full mt-auto flex-shrink-0 bg-gradient-to-r from-blue-500 to-purple-500 text-white font-bold py-4 px-4 rounded-lg hover:opacity-90 disabled:opacity-50 transition-opacity text-lg flex items-center justify-center shadow-lg shadow-blue-500/20"
+        className="w-full mt-8 flex-shrink-0 bg-gradient-to-r from-blue-500 to-purple-500 text-white font-bold py-4 px-4 rounded-lg hover:opacity-90 disabled:opacity-50 transition-opacity text-lg flex items-center justify-center shadow-lg shadow-blue-500/20"
         whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.98 }}
       >

@@ -319,7 +319,8 @@ function App() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
         >
-          <div className="lg:col-span-3">
+          {/* --- CORRECTED: Added h-full to ensure the div stretches --- */}
+          <div className="lg:col-span-3 h-full">
             <Summarizer
               transcript={transcript} setTranscript={setTranscript}
               prompt={prompt} setPrompt={setPrompt}
@@ -335,7 +336,8 @@ function App() {
             />
           </div>
           
-          <div className="lg:col-span-2">
+          {/* --- CORRECTED: Added h-full to ensure the div stretches --- */}
+          <div className="lg:col-span-2 h-full">
             <ResultsPanel
               user={user}
               summary={summary}

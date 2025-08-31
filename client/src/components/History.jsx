@@ -55,7 +55,7 @@ function History({
     summary.summaryText.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  if (!summaries.length) {
+  if (!summaries.length && !searchTerm) {
     return (
       <div className="text-center p-8 bg-slate-900/50 rounded-lg border border-slate-700">
         <h3 className="font-semibold text-slate-200">Ready to Start?</h3>
@@ -118,9 +118,13 @@ function History({
                     type="text"
                     value={newTitle}
                     onChange={handleTitleChange}
-                    onKeyDown={(e) => e.key === 'Enter' && handleTitleSave(summary._id)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') handleTitleSave(summary._id);
+                      if (e.key === 'Escape') setEditingId(null);
+                    }}
                     className="flex-grow font-semibold text-slate-100 bg-transparent border-b border-blue-500 focus:outline-none"
                     autoFocus
+                    onBlur={() => setEditingId(null)} // Save on blur
                   />
                   <button onClick={() => handleTitleSave(summary._id)} className="ml-2 p-1 text-green-400 hover:bg-green-500/20 rounded-full">
                     <Check className="h-4 w-4" />
