@@ -3,41 +3,27 @@ const requireLogin = require('../middleware/requireLogin');
 const { google } = require('googleapis');
 const multer = require('multer');
 const mammoth = require('mammoth');
-const Groq = require('groq-sdk'); // Re-import Groq
+const Groq = require('groq-sdk');
 
 const Summary = mongoose.model('Summary');
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
-
-// --- Re-initialize Groq ---
-const groq = new Groq({
-  apiKey: process.env.GROQ_API_KEY,
-});
+const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
 module.exports = app => {
   // GET all summaries for the logged-in user
   app.get('/api/summaries', requireLogin, async (req, res) => {
-    try {
-      const summaries = await Summary.find({ _user: req.user.id }).sort({ createdAt: -1 });
-      res.send(summaries);
-    } catch (error) {
-      console.error('Error fetching summaries:', error);
-      res.status(500).send({ error: 'Failed to fetch summaries.' });
-    }
+    const summaries = await Summary.find({ _user: req.user.id }).sort({ createdAt: -1 });
+    res.send(summaries);
   });
 
   // GET a single public summary by its shareId
   app.get('/api/summaries/:shareId', async (req, res) => {
-    try {
-      const summary = await Summary.findOne({ shareId: req.params.shareId });
-      if (!summary) {
-        return res.status(404).send({ error: 'Summary not found.' });
-      }
-      res.send(summary);
-    } catch (error) {
-      console.error('Error fetching shared summary:', error);
-      res.status(500).send({ error: 'Failed to fetch summary.' });
+    const summary = await Summary.findOne({ shareId: req.params.shareId });
+    if (!summary) {
+      return res.status(404).send({ error: 'Summary not found.' });
     }
+    res.send(summary);
   });
 
   // POST to generate a new summary
@@ -64,7 +50,7 @@ module.exports = app => {
       let generatedTitle = 'Untitled Summary';
       try {
         const titleResponse = await groq.chat.completions.create({
-          model: 'gemma-7b-it', // --- STABLE FREE MODEL ---
+          model: 'llama3-8b-8192',
           messages: [
             { role: 'system', content: 'You are an expert at creating short, descriptive titles.' },
             { role: 'user', content: `Analyze the following text and create a concise title for it, no more than 7 words. Text: "${originalContent.substring(0, 1000)}"` },
@@ -76,7 +62,7 @@ module.exports = app => {
       }
       
       const summaryResponse = await groq.chat.completions.create({
-        model: 'gemma-7b-it', // --- STABLE FREE MODEL ---
+        model: 'llama3-8b-8192',
         messages: [
           { role: 'system', content: 'You are a helpful assistant that summarizes meeting transcripts.' },
           { role: 'user', content: `Instruction: "${prompt}". Transcript: "${originalContent}"` },
@@ -105,18 +91,29 @@ module.exports = app => {
   app.patch('/api/summaries/:id', requireLogin, async (req, res) => {
     const { title } = req.body;
     const { id } = req.params;
-    if (!title) { return res.status(400).send({ error: 'Title is required.' }); }
+
+    if (!title) {
+      return res.status(400).send({ error: 'Title is required.' });
+    }
+    
     try {
-      const summary = await Summary.findOneAndUpdate({ _id: id, _user: req.user.id }, { title }, { new: true });
-      if (!summary) { return res.status(404).send({ error: 'Summary not found or you do not have permission to edit it.' }); }
+      const summary = await Summary.findOneAndUpdate(
+        { _id: id, _user: req.user.id },
+        { title },
+        { new: true }
+      );
+
+      if (!summary) {
+        return res.status(404).send({ error: 'Summary not found or you do not have permission to edit it.' });
+      }
       res.send(summary);
-    } catch (error) { 
+    } catch (error) {
       console.error('Error updating title:', error);
       res.status(500).send({ error: 'Failed to update summary title.' });
     }
   });
 
-  // POST route to refine an existing summary
+  // --- NEW: POST route to refine an existing summary ---
   app.post('/api/summaries/refine', requireLogin, async (req, res) => {
     const { currentSummary, refinementPrompt } = req.body;
     if (!currentSummary || !refinementPrompt) {
@@ -125,30 +122,48 @@ module.exports = app => {
 
     try {
       const response = await groq.chat.completions.create({
-        model: 'gemma-7b-it', // --- STABLE FREE MODEL ---
+        model: 'llama3-8b-8192',
         messages: [
-          { role: 'system', content: 'You are an expert editor. Refine the provided text based on the user\'s instruction. Only output the refined text.' },
-          { role: 'user', content: `Text to refine:\n---\n${currentSummary}\n---\n\nMy instruction: "${refinementPrompt}"`},
+          { 
+            role: 'system', 
+            content: 'You are an expert editor. Your task is to refine the provided text based on the user\'s instruction. Only output the refined text, without any extra commentary.' 
+          },
+          { 
+            role: 'user', 
+            content: `Here is the text to refine:\n\n---\n${currentSummary}\n---\n\nHere is my instruction: "${refinementPrompt}"`
+          },
         ],
       });
+
       const refinedText = response.choices[0].message.content;
       res.send({ refinedText });
+
     } catch (error) {
       console.error('Error refining summary:', error);
       res.status(500).send({ error: 'Failed to refine summary.' });
     }
   });
 
-  // PATCH route to save the final refined summary text
+  // --- NEW: PATCH route to save the final refined summary text ---
   app.patch('/api/summaries/:id/text', requireLogin, async (req, res) => {
     const { summaryText } = req.body;
     const { id } = req.params;
-    if (!summaryText) { return res.status(400).send({ error: 'Summary text is required.' }); }
+
+    if (!summaryText) {
+      return res.status(400).send({ error: 'Summary text is required.' });
+    }
+
     try {
-      const summary = await Summary.findOneAndUpdate({ _id: id, _user: req.user.id }, { summaryText }, { new: true });
-      if (!summary) { return res.status(404).send({ error: 'Summary not found or you do not have permission to save it.' }); }
+      const summary = await Summary.findOneAndUpdate(
+        { _id: id, _user: req.user.id },
+        { summaryText },
+        { new: true }
+      );
+      if (!summary) {
+        return res.status(404).send({ error: 'Summary not found or you do not have permission to save it.' });
+      }
       res.send(summary);
-    } catch (error) { 
+    } catch (error) {
       console.error('Error saving refined summary:', error);
       res.status(500).send({ error: 'Failed to save changes.' });
     }
@@ -157,14 +172,41 @@ module.exports = app => {
   // POST to share a summary via email
   app.post('/api/share', requireLogin, async (req, res) => {
     const { summary, recipient } = req.body;
-    if (!summary || !recipient) { return res.status(400).json({ error: 'Summary and recipient are required.' }); }
+    if (!summary || !recipient) {
+      return res.status(400).json({ error: 'Summary and recipient are required.' });
+    }
+
     try {
-      const oauth2Client = new google.auth.OAuth2(process.env.GOOGLE_CLIENT_ID, process.env.GOOGLE_CLIENT_SECRET, '/auth/google/callback');
-      oauth2Client.setCredentials({ access_token: req.user.accessToken, refresh_token: req.user.refreshToken });
+      const oauth2Client = new google.auth.OAuth2(
+        process.env.GOOGLE_CLIENT_ID,
+        process.env.GOOGLE_CLIENT_SECRET,
+        '/auth/google/callback'
+      );
+
+      oauth2Client.setCredentials({
+        access_token: req.user.accessToken,
+        refresh_token: req.user.refreshToken,
+      });
+
       const gmail = google.gmail({ version: 'v1', auth: oauth2Client });
-      const rawMessage = [`From: ${req.user.email}`, `To: ${recipient}`, `Subject: Your LexoraAI Meeting Summary`, '', summary].join('\n');
+
+      const rawMessage = [
+        `From: ${req.user.email}`,
+        `To: ${recipient}`,
+        `Subject: Your LexoraAI Meeting Summary`,
+        '',
+        summary,
+      ].join('\n');
+      
       const encodedMessage = Buffer.from(rawMessage).toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-      await gmail.users.messages.send({ userId: 'me', requestBody: { raw: encodedMessage } });
+
+      await gmail.users.messages.send({
+        userId: 'me',
+        requestBody: {
+          raw: encodedMessage,
+        },
+      });
+
       res.send({ message: 'Email sent successfully!' });
     } catch (error) {
       console.error('Error sending email via Gmail API:', error);
@@ -172,4 +214,3 @@ module.exports = app => {
     }
   });
 };
-
