@@ -2,12 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { UploadCloud, Sparkles, RotateCcw, Save, Trash2, X } from 'lucide-react';
 
-const promptTemplates = [
-  { title: 'Executive Summary', prompt: 'Summarize the following transcript into a concise executive summary, highlighting the key decisions and outcomes. Format the output as clean markdown.' },
-  { title: 'Action Items', prompt: 'Extract all action items from the transcript. List them as a markdown checklist with assigned owners if mentioned.' },
-  { title: 'Bullet Points', prompt: 'Condense the key topics of this meeting into a series of clear and concise markdown bullet points.' },
-];
-
 function Summarizer({
   transcript, setTranscript,
   prompt, setPrompt,
@@ -52,7 +46,8 @@ function Summarizer({
   };
 
   return (
-    <div className="lg:w-2/3 w-full bg-slate-800/50 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl p-8 space-y-8">
+    // --- CORRECTED: Removed fixed-width classes and added flex properties ---
+    <div className="bg-slate-800/50 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl p-8 space-y-8 flex flex-col h-full">
       {/* Header Section */}
       <div className="flex justify-between items-center">
         <div className="text-left">
@@ -148,7 +143,7 @@ function Summarizer({
       <motion.button
         onClick={handleGenerateSummary}
         disabled={isLoading}
-        className="w-full bg-gradient-to-r from-blue-500 to-purple-500 text-white font-bold py-4 px-4 rounded-lg hover:opacity-90 disabled:opacity-50 transition-opacity text-lg flex items-center justify-center shadow-lg shadow-blue-500/20"
+        className="w-full mt-auto bg-gradient-to-r from-blue-500 to-purple-500 text-white font-bold py-4 px-4 rounded-lg hover:opacity-90 disabled:opacity-50 transition-opacity text-lg flex items-center justify-center shadow-lg shadow-blue-500/20"
         whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.98 }}
       >

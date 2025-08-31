@@ -18,12 +18,13 @@ function ResultsPanel({
   handleCopyToClipboard,
   handleExport,
   handleShareEmail,
-  recipient, 
+  recipient,
   setRecipient
 }) {
 
   return (
-    <div className="lg:w-1/3 w-full bg-slate-800/50 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl p-8 flex flex-col">
+    // --- CORRECTED: Removed fixed-width classes and added h-full ---
+    <div className="bg-slate-800/50 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl p-8 flex flex-col h-full">
       <div className="flex justify-between items-center mb-6 flex-shrink-0">
         <h2 className="text-2xl font-bold text-slate-100">{showHistory ? 'History' : 'Generated Summary'}</h2>
         <button
@@ -34,11 +35,11 @@ function ResultsPanel({
           {showHistory ? (summary ? 'Show Summary' : '') : 'Show History'}
         </button>
       </div>
-      
+
       <div className="flex-grow overflow-hidden">
         {showHistory ? (
-          <History 
-            summaries={summariesHistory} 
+          <History
+            summaries={summariesHistory}
             onSelectSummary={handleSelectSummaryFromHistory}
             isLoading={isHistoryLoading}
             searchTerm={searchTerm}
@@ -47,7 +48,7 @@ function ResultsPanel({
           />
         ) : summary ? (
           <motion.div className="h-full" initial={{opacity: 0}} animate={{opacity: 1}}>
-            <ChatInterface 
+            <ChatInterface
               user={user}
               summary={summary}
               handleRefineSummary={handleRefineSummary}

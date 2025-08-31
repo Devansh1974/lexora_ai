@@ -204,11 +204,10 @@ function App() {
   const handleSaveChanges = async (summaryId, newSummaryText) => {
     const toastId = toast.loading('Saving changes...');
     try {
-      // Update the summary in the main state immediately for a responsive feel
       setSummary(prev => ({ ...prev, summaryText: newSummaryText }));
       
       await api.patch(`/api/summaries/${summaryId}/text`, { summaryText: newSummaryText });
-      await fetchHistory(); // Refresh history with the latest saved version
+      await fetchHistory();
       toast.success('Changes saved!', { id: toastId });
     } catch (error) {
       toast.error('Failed to save changes.', { id: toastId });
@@ -258,9 +257,8 @@ function App() {
         toast.loading('Generating PDF...');
         html2canvas(input, { 
           scale: 2,
-          backgroundColor: null, // Use transparent background for canvas
+          backgroundColor: null,
           onclone: (document) => {
-            // Style the cloned document for PDF generation
             document.getElementById('summary-content').style.color = '#000';
           }
         }).then(canvas => {
@@ -302,44 +300,61 @@ function App() {
 
   return (
     <>
-      <Toaster position="bottom-right" reverseOrder={false} />
-      <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+      <Toaster 
+        position="bottom-right" 
+        reverseOrder={false}
+        toastOptions={{
+          style: {
+            background: '#334155', // slate-700
+            color: '#e2e8f0', // slate-200
+          },
+        }}
+      />
+      <div className="max-w-screen-xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
         <motion.div
-          className="w-full flex flex-col lg:flex-row lg:space-x-8 space-y-8 lg:space-y-0"
+          // --- CORRECTED: Grid layout for more balanced proportions ---
+          className="w-full grid grid-cols-1 lg:grid-cols-5 gap-8"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
         >
-          <Summarizer
-            transcript={transcript} setTranscript={setTranscript}
-            prompt={prompt} setPrompt={setPrompt}
-            isLoading={isLoading}
-            selectedFile={selectedFile}
-            handleFileChange={handleFileChange}
-            clearFile={clearFile}
-            handleGenerateSummary={handleGenerateSummary}
-            handleClear={handleClear}
-            prompts={prompts}
-            handleSavePrompt={handleSavePrompt}
-            handleDeletePrompt={handleDeletePrompt}
-          />
-          <ResultsPanel
-            user={user}
-            summary={summary}
-            summariesHistory={summariesHistory}
-            isHistoryLoading={isHistoryLoading}
-            showHistory={showHistory} setShowHistory={setShowHistory}
-            recipient={recipient} setRecipient={setRecipient}
-            searchTerm={searchTerm} setSearchTerm={setSearchTerm}
-            handleSelectSummaryFromHistory={handleSelectSummaryFromHistory}
-            handleCopyToClipboard={handleCopyToClipboard}
-            handleShareEmail={handleShareEmail}
-            handleRenameSummary={handleRenameSummary}
-            handleExport={handleExport}
-            handleRefineSummary={handleRefineSummary}
-            handleSaveChanges={handleSaveChanges}
-            isRefining={isRefining}
-          />
+          {/* --- CORRECTED: Updated column span for Summarizer --- */}
+          <div className="lg:col-span-3">
+            <Summarizer
+              transcript={transcript} setTranscript={setTranscript}
+              prompt={prompt} setPrompt={setPrompt}
+              isLoading={isLoading}
+              selectedFile={selectedFile}
+              handleFileChange={handleFileChange}
+              clearFile={clearFile}
+              handleGenerateSummary={handleGenerateSummary}
+              handleClear={handleClear}
+              prompts={prompts}
+              handleSavePrompt={handleSavePrompt}
+              handleDeletePrompt={handleDeletePrompt}
+            />
+          </div>
+          
+          {/* --- CORRECTED: Updated column span for ResultsPanel --- */}
+          <div className="lg:col-span-2">
+            <ResultsPanel
+              user={user}
+              summary={summary}
+              summariesHistory={summariesHistory}
+              isHistoryLoading={isHistoryLoading}
+              showHistory={showHistory} setShowHistory={setShowHistory}
+              recipient={recipient} setRecipient={setRecipient}
+              searchTerm={searchTerm} setSearchTerm={setSearchTerm}
+              handleSelectSummaryFromHistory={handleSelectSummaryFromHistory}
+              handleCopyToClipboard={handleCopyToClipboard}
+              handleShareEmail={handleShareEmail}
+              handleRenameSummary={handleRenameSummary}
+              handleExport={handleExport}
+              handleRefineSummary={handleRefineSummary}
+              handleSaveChanges={handleSaveChanges}
+              isRefining={isRefining}
+            />
+          </div>
         </motion.div>
       </div>
     </>
@@ -347,3 +362,4 @@ function App() {
 }
 
 export default App;
+
