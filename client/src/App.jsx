@@ -310,9 +310,10 @@ function App() {
           },
         }}
       />
-      <div className="max-w-screen-xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+      {/* --- CORRECTED: Full-width layout --- */}
+      <div className="w-full min-h-full py-8 px-4 sm:px-6 lg:px-8">
         <motion.div
-          // --- CORRECTED: Grid layout for more balanced proportions ---
+          // --- CORRECTED: More balanced grid layout ---
           className="w-full grid grid-cols-1 lg:grid-cols-5 gap-8"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
