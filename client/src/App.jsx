@@ -305,22 +305,23 @@ function App() {
         reverseOrder={false}
         toastOptions={{
           style: {
-            background: '#334155', // slate-700
-            color: '#e2e8f0', // slate-200
+            background: '#1e293b', // slate-800
+            color: '#e2e8f0',     // slate-200
+            border: '1px solid #334155' // slate-700
           },
         }}
       />
       {/* --- CORRECTED: Full-width layout --- */}
       <div className="w-full min-h-full py-8 px-4 sm:px-6 lg:px-8">
         <motion.div
-          // --- CORRECTED: More balanced grid layout ---
-          className="w-full grid grid-cols-1 lg:grid-cols-5 gap-8"
+          // --- CORRECTED: More balanced grid layout with equal height items ---
+          className="w-full grid grid-cols-1 lg:grid-cols-5 gap-8 items-start"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
         >
           {/* --- CORRECTED: Updated column span for Summarizer --- */}
-          <div className="lg:col-span-3">
+          <div className="lg:col-span-3 h-full">
             <Summarizer
               transcript={transcript} setTranscript={setTranscript}
               prompt={prompt} setPrompt={setPrompt}
@@ -337,7 +338,7 @@ function App() {
           </div>
           
           {/* --- CORRECTED: Updated column span for ResultsPanel --- */}
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-2 h-full">
             <ResultsPanel
               user={user}
               summary={summary}
