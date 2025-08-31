@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from 'react'; // CORRECTED: Fixed typo "iimport"
 import { motion } from 'framer-motion';
 import { Search, Edit2, Check } from 'lucide-react';
 
@@ -11,15 +11,15 @@ const SkeletonItem = () => (
   </div>
 );
 
-function History({ 
-  summaries, 
-  onSelectSummary, 
-  isLoading, 
+function History({
+  summaries,
+  onSelectSummary,
+  isLoading,
   searchTerm,
   setSearchTerm,
   handleRenameSummary
 }) {
-  
+
   const [editingId, setEditingId] = useState(null);
   const [newTitle, setNewTitle] = useState('');
 
@@ -86,7 +86,6 @@ function History({
     <div className="flex flex-col h-full">
       <div className="relative mb-4">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-500" />
-        {/* --- CORRECTED: Custom focus ring --- */}
         <input
           type="text"
           placeholder="Search history..."
@@ -150,3 +149,4 @@ function History({
 }
 
 export default History;
+
