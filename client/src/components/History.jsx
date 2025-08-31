@@ -1,4 +1,4 @@
-import React, { useState } from 'react'; // CORRECTED: Fixed typo "iimport"
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Search, Edit2, Check } from 'lucide-react';
 
