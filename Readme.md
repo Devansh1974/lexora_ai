@@ -6,7 +6,7 @@
 
 
 <p align="center">
-<strong>Clarity from conversation.</strong>
+<strong>Clarity from Conversation.</strong>
 <br />
 Tired of messy meeting notes? LexoraAI uses AI to instantly transform your transcripts into clear, actionable summaries, so you can focus on what matters. And share it in different formats.
 </p>
