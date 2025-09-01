@@ -1,5 +1,5 @@
 <div align="center">
-<img src="https://images.unsplash.com/photo-1534723452862-4c874018d66d?q=80&w=2070&auto=format&fit=crop" alt="LexoraAI Banner" width="800">
+<img src="https://placehold.co/150x150/6366F1/FFFFFF?text=L&font=raleway" alt="LexoraAI Banner" width="800">
 
 <h1 align="center">LexoraAI</h1>
 
