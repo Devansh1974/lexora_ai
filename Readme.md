@@ -1,7 +1,9 @@
 <div align="center">
-<img src="https://placehold.co/150x150/6366F1/FFFFFF?text=L&font=raleway" alt="LexoraAI Banner" width="800">
+<h1 align="center">
+    <img src="https://placehold.co/150x150/6366F1/FFFFFF?text=L&font=raleway" alt="LexoraAI Logo"><br>
+    LexoraAI
+  </h1>
 
-<h1 align="center">LexoraAI</h1>
 
 <p align="center">
 <strong>Clarity from conversation.</strong>
