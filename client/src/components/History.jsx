@@ -98,7 +98,7 @@ function History({
 
       {/* --- CORRECTED: This motion.div is now the scrollable container --- */}
       <motion.div
-        className="space-y-3 overflow-y-auto flex-grow pr-2 -mr-2" // Added margin trick to hide scrollbar visually
+        className="space-y-3 h-35 overflow-y-scroll flex-grow pr-2 -mr-2" // Added margin trick to hide scrollbar visually
         variants={containerVariants}
         initial="hidden"
         animate="visible"

@@ -23,7 +23,7 @@ function ResultsPanel({
 }) {
 
   return (
-    <div className="bg-slate-800/50 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl p-8 flex flex-col h-full">
+    <div className="bg-slate-800/50 backdrop-blur-xl border border-black/10 rounded-2xl shadow-2xl p-8 flex flex-col h-full">
       <div className="flex justify-between items-center mb-6 flex-shrink-0">
         <h2 className="text-2xl font-bold text-slate-100">{showHistory ? 'History' : 'Generated Summary'}</h2>
         {/* --- CORRECTED BUTTON LOGIC --- */}
